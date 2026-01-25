@@ -1,0 +1,64 @@
+{
+    "title": "AI GenAI Insights",
+    "panels": [
+        {
+            "title": "Token Usage per Model",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+                {
+                    "expr": "sum(rate(ai_token_usage_total[5m])) by (model)",
+                    "legendFormat": "{{model}}"
+                }
+            ],
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 0
+            }
+        },
+        {
+            "title": "Estimated Cost ($)",
+            "type": "stat",
+            "datasource": "Prometheus",
+            "targets": [
+                {
+                    "expr": "sum(increase(ai_token_usage_total{model='groq'}[1h])) * 0.0005 + sum(increase(ai_token_usage_total{model='gpt4'}[1h])) * 0.03",
+                    "legendFormat": "Hourly Cost"
+                }
+            ],
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 12,
+                "y": 0
+            }
+        },
+        {
+            "title": "Tool Usage Frequency",
+            "type": "barchart",
+            "datasource": "Prometheus",
+            "targets": [
+                {
+                    "expr": "sum(increase(ai_action_count[1h])) by (tool)",
+                    "legendFormat": "{{tool}}"
+                }
+            ],
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 18,
+                "y": 0
+            }
+        }
+    ],
+    "schemaVersion": 21,
+    "style": "dark",
+    "tags": [
+        "ai",
+        "journeyiq"
+    ],
+    "timezone": "browser",
+    "uid": "ai-genai-insights"
+}

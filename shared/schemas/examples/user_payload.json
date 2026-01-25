@@ -1,0 +1,9 @@
+{
+    "email": "alice@example.com",
+    "full_name": "Alice Voyager",
+    "preferences": {
+        "currency": "USD",
+        "seat_preference": "aisle",
+        "dietary_restrictions": "none"
+    }
+}

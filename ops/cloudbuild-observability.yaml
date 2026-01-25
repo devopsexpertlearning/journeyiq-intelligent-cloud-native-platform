@@ -1,0 +1,22 @@
+steps:
+  # 1. Validate Configs (Mock)
+  - name: 'bash'
+    args: ['-c', 'echo "Validating Prometheus and Grafana configs..."']
+
+  # 2. Update Grafana Dashboards (ConfigMap)
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args:
+      - 'create'
+      - 'configmap'
+      - 'grafana-dashboards'
+      - '--from-file=k8s/observability/dashboards/'
+      - '--dry-run=client'
+      - '-o'
+      - 'yaml'
+      - '|'
+      - 'kubectl'
+      - 'apply'
+      - '-f'
+      - '-'
+
+tags: ['observability-deploy']

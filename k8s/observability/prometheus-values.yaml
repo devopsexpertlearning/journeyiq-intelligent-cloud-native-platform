@@ -1,0 +1,15 @@
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorSelector:
+      matchLabels:
+        release: prometheus # Default expectation, or we adjust our ServiceMonitor labels
+    podMonitorSelectorNilUsesHelmValues: false
+
+grafana:
+  enabled: false # We will deploy Grafana separately or use the one in the stack with custom values
+  # If using the one in the stack:
+  # adminPassword: "admin"
+
+alertmanager:
+  enabled: true

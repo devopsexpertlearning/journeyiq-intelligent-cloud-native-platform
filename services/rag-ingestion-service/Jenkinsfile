@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+    environment {
+        PROJECT_ID = 'journeyiq-prod'
+        rag-ingestion-service = 'rag-ingestion-service'
+        IMAGE_TAG = "us-central1-docker.pkg.dev/${PROJECT_ID}/journeyiq-services/${rag-ingestion-service}:${BUILD_NUMBER}"
+    }
+    stages {
+        stage('Test') {
+            steps {
+                sh 'pip install -r requirements.txt && pytest'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh "docker build -t ${IMAGE_TAG} ."
+            }
+        }
+        stage('Push') {
+            steps {
+                sh "docker push ${IMAGE_TAG}"
+            }
+        }
+        stage('Deploy') {
+            steps {
+                script {
+                    sh "cd ../../k8s/overlays/prod/${rag-ingestion-service} && kustomize edit set image ${IMAGE_TAG} && kustomize build . | kubectl apply -f -"
+                }
+            }
+        }
+    }
+    post {
+        failure {
+            echo 'Deployment failed. Triggering rollback...'
+            // Rollback logic: kubectl rollout undo deployment/${rag-ingestion-service}
+            sh "kubectl rollout undo deployment/${rag-ingestion-service}"
+        }
+    }
+}

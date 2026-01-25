@@ -1,0 +1,8 @@
+{
+    "origin": "JFK",
+    "destination": "LHR",
+    "departure_date": "2026-06-01",
+    "return_date": "2026-06-15",
+    "passengers": 2,
+    "class": "ECONOMY"
+}

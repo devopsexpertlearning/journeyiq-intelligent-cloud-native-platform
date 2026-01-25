@@ -1,0 +1,465 @@
+version: '3.8'
+
+services:
+  # ====================
+  # Infrastructure Services
+  # ====================
+  
+  postgres:
+    image: postgres:15-alpine
+    container_name: journeyiq-postgres
+    environment:
+      POSTGRES_DB: journeyiq
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./seed-data/01_init_schemas.sql:/docker-entrypoint-initdb.d/01_init_schemas.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - journeyiq-network
+
+  pubsub-emulator:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:latest
+    container_name: journeyiq-pubsub
+    command: gcloud beta emulators pubsub start --host-port=0.0.0.0:8085 --project=journeyiq-local
+    ports:
+      - "8085:8085"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - journeyiq-network
+
+  # ====================
+  # Core Microservices
+  # ====================
+
+  api-gateway:
+    build:
+      context: ../services/api-gateway
+      dockerfile: Dockerfile
+    container_name: journeyiq-api-gateway
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pubsub-emulator:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  auth-service:
+    build:
+      context: ../services/auth-service
+      dockerfile: Dockerfile
+    container_name: journeyiq-auth
+    ports:
+      - "8001:8000"
+    env_file:
+      - .env
+    environment:
+      - JWT_SECRET=your-secret-key-change-in-production
+      - JWT_ALGORITHM=HS256
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  user-service:
+    build:
+      context: ../services/user-service
+      dockerfile: Dockerfile
+    container_name: journeyiq-user
+    ports:
+      - "8002:8000"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pubsub-emulator:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  search-service:
+    build:
+      context: ../services/search-service
+      dockerfile: Dockerfile
+    container_name: journeyiq-search
+    ports:
+      - "8003:8000"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  pricing-service:
+    build:
+      context: ../services/pricing-service
+      dockerfile: Dockerfile
+    container_name: journeyiq-pricing
+    ports:
+      - "8004:8000"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  inventory-service:
+    build:
+      context: ../services/inventory-service
+      dockerfile: Dockerfile
+    container_name: journeyiq-inventory
+    ports:
+      - "8005:8000"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pubsub-emulator:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  booking-service:
+    build:
+      context: ../services/booking-service
+      dockerfile: Dockerfile
+    container_name: journeyiq-booking
+    ports:
+      - "8006:8000"
+    env_file:
+      - .env
+    # Keeping PAYMENT_SERVICE_URL explicit override if needed or handled by common
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pubsub-emulator:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  payment-service:
+    build:
+      context: ../services/payment-service
+      dockerfile: Dockerfile
+    container_name: journeyiq-payment
+    ports:
+      - "8007:8000"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pubsub-emulator:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  ticketing-service:
+    build:
+      context: ../services/ticketing-service
+      dockerfile: Dockerfile
+    container_name: journeyiq-ticketing
+    ports:
+      - "8008:8000"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pubsub-emulator:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  notification-service:
+    build:
+      context: ../services/notification-service
+      dockerfile: Dockerfile
+    container_name: journeyiq-notification
+    ports:
+      - "8009:8000"
+    env_file:
+      - .env
+    environment:
+      - SMTP_HOST=postfix
+      - SMTP_PORT=25
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pubsub-emulator:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  review-service:
+    build:
+      context: ../services/review-service
+      dockerfile: Dockerfile
+    container_name: journeyiq-review
+    ports:
+      - "8010:8000"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pubsub-emulator:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  analytics-service:
+    build:
+      context: ../services/analytics-service
+      dockerfile: Dockerfile
+    container_name: journeyiq-analytics
+    ports:
+      - "8011:8000"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pubsub-emulator:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  # ====================
+  # AI/RAG Services
+  # ====================
+
+  ai-agent-service:
+    build:
+      context: ../services/ai-agent-service
+      dockerfile: Dockerfile
+    container_name: journeyiq-ai-agent
+    ports:
+      - "8012:8000"
+    env_file:
+      - .env
+    environment:
+      - LLM_PROVIDER=gemini
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_MODEL_NAME=${GEMINI_MODEL_NAME}
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+      - GROQ_MODEL_NAME=${GROQ_MODEL_NAME}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      vector-store-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  rag-ingestion-service:
+    build:
+      context: ../services/rag-ingestion-service
+      dockerfile: Dockerfile
+    container_name: journeyiq-rag-ingestion
+    ports:
+      - "8013:8000"
+    env_file:
+      - .env
+    environment:
+      - RAG_DOCUMENTS_PATH=/app/data/rag_documents.json
+    volumes:
+      - ./seed-data/rag_documents.json:/app/data/rag_documents.json:ro
+    depends_on:
+      vector-store-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  vector-store-service:
+    build:
+      context: ../services/vector-store-service
+      dockerfile: Dockerfile
+    container_name: journeyiq-vector-store
+    ports:
+      - "8014:8000"
+    env_file:
+      - .env
+    environment:
+      - FAISS_INDEX_PATH=/app/vectorstore/faiss_index
+    volumes:
+      - vector_store_data:/app/vectorstore
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  # ====================
+  # Observability Stack
+  # ====================
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: journeyiq-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9090/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: journeyiq-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./observability/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./observability/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  # ====================
+  # Utilities
+  # ====================
+
+  postfix:
+    build:
+      context: ./infrastructure/postfix
+      dockerfile: Dockerfile
+    container_name: journeyiq-postfix
+    ports:
+      - "2525:25"  # SMTP accessible on localhost:2525
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 25 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+networks:
+  journeyiq-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  vector_store_data:
+  prometheus_data:
+  grafana_data:

@@ -1,0 +1,27 @@
+steps:
+  # 1. Build Canary Image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/${PROJECT_ID}/journeyiq-services/ai-agent-service:${SHORT_SHA}-canary', '.']
+
+  # 2. Push Canary Image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/${PROJECT_ID}/journeyiq-services/ai-agent-service:${SHORT_SHA}-canary']
+
+  # 3. Deploy Canary (using separate Kustomize overlay or label)
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # In a full setup, we would deploy to a 'canary' deployment object
+        # For this contract, we simulate updating a canary label
+        kubectl set image deployment/ai-agent-canary app=us-central1-docker.pkg.dev/${PROJECT_ID}/journeyiq-services/ai-agent-service:${SHORT_SHA}-canary || \
+        echo "Canary deployment not found, skipping..."
+
+  # 4. Verification / Smoke Test
+  - name: 'python:3.11-slim'
+    entrypoint: 'python'
+    args: ['src/canary_check.py'] # Mock script
+
+images:
+  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/journeyiq-services/ai-agent-service:${SHORT_SHA}-canary'

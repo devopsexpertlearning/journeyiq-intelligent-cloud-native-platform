@@ -1,0 +1,30 @@
+{
+    "type": "object",
+    "properties": {
+        "payment_id": {
+            "type": "string"
+        },
+        "booking_id": {
+            "type": "string"
+        },
+        "amount": {
+            "type": "number"
+        },
+        "status": {
+            "type": "string",
+            "enum": [
+                "SUCCESS"
+            ]
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "required": [
+        "payment_id",
+        "booking_id",
+        "status",
+        "timestamp"
+    ]
+}

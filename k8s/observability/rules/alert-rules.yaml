@@ -1,0 +1,43 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: journeyiq-alerts
+  labels:
+    release: prometheus
+spec:
+  groups:
+  - name: journeyiq.general
+    rules:
+    - alert: HighErrorRate
+      expr: |
+        sum(rate(http_requests_total{status=~"5.."}[5m])) by (app)
+        /
+        sum(rate(http_requests_total[5m])) by (app) > 0.05
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "High error rate for {{ $labels.app }}"
+        description: "{{ $labels.app }} has >5% errors for 5m."
+
+    - alert: HighLatency
+      expr: |
+        histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, app)) > 2.0
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High latency for {{ $labels.app }}"
+        description: "P99 latency > 2s for {{ $labels.app }}."
+
+  - name: journeyiq.ai
+    rules:
+    - alert: HighTokenUsage
+      expr: |
+        sum(rate(ai_token_usage_total[1h])) by (model) > 10000
+      for: 1h
+      labels:
+        severity: warning
+      annotations:
+        summary: "Cost Spike Detected"
+        description: "Token usage for {{ $labels.model }} exceeds 10k/hr."

@@ -1,0 +1,31 @@
+{
+    "type": "object",
+    "properties": {
+        "booking_id": {
+            "type": "string"
+        },
+        "user_id": {
+            "type": "string"
+        },
+        "flight_id": {
+            "type": "string"
+        },
+        "amount": {
+            "type": "number"
+        },
+        "currency": {
+            "type": "string"
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "required": [
+        "booking_id",
+        "user_id",
+        "flight_id",
+        "amount",
+        "timestamp"
+    ]
+}

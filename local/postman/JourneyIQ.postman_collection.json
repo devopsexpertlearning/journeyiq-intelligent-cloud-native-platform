@@ -1,0 +1,341 @@
+{
+    "info": {
+        "name": "JourneyIQ Platform API",
+        "description": "Complete API collection for JourneyIQ travel booking platform",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_postman_id": "journeyiq-platform-v1"
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost",
+            "type": "string"
+        },
+        {
+            "key": "auth_token",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "user_id",
+            "value": "u0000000-0000-0000-0000-000000000001",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "1. Authentication",
+            "item": [
+                {
+                    "name": "Login",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{base_url}}:8001/auth/login",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"alice.voyager@journeyiq.com\",\n  \"password\": \"password123\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Register",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{base_url}}:8001/auth/register",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"securepass\",\n  \"full_name\": \"New User\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "2. User Management",
+            "item": [
+                {
+                    "name": "Get User Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}:8002/users/{{user_id}}"
+                    }
+                },
+                {
+                    "name": "Update Preferences",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}:8002/users/{{user_id}}/preferences",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"currency\": \"EUR\",\n  \"seat_preference\": \"window\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "3. Search",
+            "item": [
+                {
+                    "name": "Search Flights - JFK to LHR",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}:8003/search/flights?origin=JFK&destination=LHR&max_price=700",
+                            "query": [
+                                {
+                                    "key": "origin",
+                                    "value": "JFK"
+                                },
+                                {
+                                    "key": "destination",
+                                    "value": "LHR"
+                                },
+                                {
+                                    "key": "max_price",
+                                    "value": "700"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search Hotels - Tokyo",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}:8003/search/hotels?location=Tokyo&min_rating=4.5",
+                            "query": [
+                                {
+                                    "key": "location",
+                                    "value": "Tokyo"
+                                },
+                                {
+                                    "key": "min_rating",
+                                    "value": "4.5"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "4. Booking Flow",
+            "item": [
+                {
+                    "name": "Create Booking",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}:8006/bookings",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"resource_type\": \"FLIGHT\",\n  \"resource_id\": \"f0000000-0000-0000-0000-000000000001\",\n  \"passengers\": [{\"name\": \"Alice Voyager\", \"seat\": \"10A\"}]\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Process Payment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}:8007/payments",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"booking_id\": \"b0000000-0000-0000-0000-000000000001\",\n  \"amount\": 720.00,\n  \"currency\": \"USD\",\n  \"payment_method\": {\n    \"type\": \"CARD\",\n    \"card_number\": \"4111111111111111\",\n    \"expiry\": \"12/25\",\n    \"cvv\": \"123\"\n  }\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Booking",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}:8006/bookings/b0000000-0000-0000-0000-000000000001"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "5. AI Agent",
+            "item": [
+                {
+                    "name": "Ask About Cancellation Policy",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{base_url}}:8012/agent/chat",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"message\": \"What is the flight cancellation policy?\",\n  \"user_id\": \"{{user_id}}\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Ask About Baggage",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{base_url}}:8012/agent/chat",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"message\": \"What is the baggage allowance for economy class?\",\n  \"user_id\": \"{{user_id}}\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Ask About Loyalty Program",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type": "value": "application/json"
+                            }
+                        ],
+                        "url": "{{base_url}}:8012/agent/chat",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"message\": \"Tell me about the loyalty program benefits\",\n  \"user_id\": \"{{user_id}}\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "6. Reviews",
+            "item": [
+                {
+                    "name": "Submit Review",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}:8010/reviews",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"resource_id\": \"f0000000-0000-0000-0000-000000000001\",\n  \"rating\": 5,\n  \"comment\": \"Excellent flight experience!\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "7. Vector Search (RAG)",
+            "item": [
+                {
+                    "name": "Search Documents",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{base_url}}:8014/search",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"query\": \"cancellation policy\",\n  \"k\": 3\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "8. Health Checks",
+            "item": [
+                {
+                    "name": "API Gateway Health",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}:8000/health"
+                    }
+                },
+                {
+                    "name": "Auth Service Health",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}:8001/health"
+                    }
+                },
+                {
+                    "name": "AI Agent Health",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}:8012/health"
+                    }
+                }
+            ]
+        }
+    ]
+}

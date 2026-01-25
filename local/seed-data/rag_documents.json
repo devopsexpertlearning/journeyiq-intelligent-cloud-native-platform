@@ -1,0 +1,162 @@
+[
+  {
+    "id": "doc_001",
+    "title": "Flight Cancellation Policy",
+    "content": "Bookings created more than 24 hours ago are non-refundable unless purchased with Flexi-Fare protection. Cancellations within 24 hours of booking receive a full refund. For Flexi-Fare bookings, cancellations up to 4 hours before departure receive 80% refund, 2-4 hours before receive 50% refund. No-show passengers forfeit entire fare."
+  },
+  {
+    "id": "doc_002",
+    "title": "Baggage Allowance - Economy",
+    "content": "Economy class passengers are allowed one carry-on bag (max 7kg) and one personal item. Checked baggage is not included and must be purchased separately at $30 per bag (up to 23kg). Overweight bags (23-32kg) incur $50 surcharge. Items over 32kg are not accepted."
+  },
+  {
+    "id": "doc_003",
+    "title": "Baggage Allowance - Business Class",
+    "content": "Business class passengers enjoy 2 free checked bags (up to 32kg each) plus one carry-on (10kg) and personal item. Additional bags cost $40 each. Priority baggage handling ensures your luggage arrives first on the carousel."
+  },
+  {
+    "id": "doc_004",
+    "title": "Hotel Check-in/Check-out Policy",
+    "content": "Standard check-in time is 3:00 PM local time. Check-out time is 11:00 AM. Early check-in (before noon) costs $25 subject to availability. Late check-out until 3:00 PM costs $35. Checkout after 3:00 PM is charged as an additional night."
+  },
+  {
+    "id": "doc_005",
+    "title": "JourneyIQ Loyalty Program - Tier Benefits",
+    "content": "Earn 1 point for every $1 spent. Silver tier (5,000 points): 5% bonus points. Gold tier (15,000 points): 10% bonus points, priority boarding, free seat selection. Platinum tier (50,000 points): 25% bonus points, lounge access, free upgrades, waived change fees. Redeem 1000 points for $10 discount on any booking."
+  },
+  {
+    "id": "doc_006",
+    "title": "Visa Requirements for Japan",
+    "content": "Tourists from USA, UK, Canada, Australia, and 68 other visa-exempt countries can stay up to 90 days without a visa. Visitors must have passport valid for duration of stay. For business visits or stays exceeding 90 days, apply for appropriate visa at Japanese embassy. Entry requirements updated frequently - check Ministry of Foreign Affairs 72 hours before departure."
+  },
+  {
+    "id": "doc_007",
+    "title": "Visa Requirements for Schengen Area",
+    "content": "US, UK, Canadian, Australian citizens can visit Schengen Area visa-free for up to 90 days within 180-day period. From 2024, ETIAS (European Travel Information and Authorization System) pre-approval required. Apply online at least 96 hours before travel. Fee: €7, valid 3 years. Passport must be valid 3 months beyond departure date."
+  },
+  {
+    "id": "doc_008",
+    "title": "COVID-19 Travel Requirements",
+    "content": "Most countries have lifted COVID-19 entry restrictions (as of 2024). However, some destinations may require proof of vaccination or recent negative test. China requires negative PCR test 48 hours before departure. Always check destination-specific requirements 1 week before travel as policies change frequently."
+  },
+  {
+    "id": "doc_009",
+    "title": "Travel Insurance Coverage",
+    "content": "JourneyIQ Comprehensive Travel Insurance covers trip cancellation (100%), medical emergencies ($50,000), baggage loss ($1,500), flight delays >6 hours ($200/day), and emergency evacuation ($100,000). Premium: 7% of total trip cost. Excludes pre-existing conditions unless purchased within 14 days of initial deposit."
+  },
+  {
+    "id": "doc_010",
+    "title": "Flight Change and Modification Policy",
+    "content": "Standard fares: $150 change fee plus fare difference. Flexi-Fare: Free changes up to 24 hours before departure, $50 fee within 24 hours. Name changes not permitted. Date/time changes allowed based on availability. Changes must be made minimum 2 hours before departure."
+  },
+  {
+    "id": "doc_011",
+    "title": "Hotel Cancellation Policy",
+    "content": "Free cancellation up to 48 hours before check-in for standard bookings. Non-refundable rates cannot be cancelled. Cancellations within 48 hours forfeit first night charge. No-shows are charged full reservation cost. Time zone is based on property local time."
+  },
+  {
+    "id": "doc_012",
+    "title": "Special Meal Requests - Flights",
+    "content": "Request special meals (vegetarian, vegan, kosher, halal, gluten-free, diabetic-friendly) at least 48 hours before departure. Meals available on flights >2 hours. Child meals and baby food available on request. Severe allergies should be reported 72 hours in advance - note we cannot guarantee allergen-free environment."
+  },
+  {
+    "id": "doc_013",
+    "title": "Wheelchair and Mobility Assistance",
+    "content": "Complimentary wheelchair assistance available at airports. Request at booking or 48 hours before departure. Passengers can choose: WCHR (can climb stairs), WCHS (cannot climb stairs), or WCHC (immobile). Personal wheelchairs transported free. Notify airline of battery type for powered wheelchairs."
+  },
+  {
+    "id": "doc_014",
+    "title": "Traveling with Infants and Children",
+    "content": "Infants under 2 years travel on adult's lap (10% adult fare) or in purchased seat with car seat ($150 flat fee). Children 2-11 years receive 15% discount on adult fares. Unaccompanied minors (5-11 years) require $150 supervision fee per flight segment. Minors 12-17 can travel alone with parental consent."
+  },
+  {
+    "id": "doc_015",
+    "title": "Pet Travel Policy",
+    "content": "Small pets (<8kg including carrier) allowed in cabin on most airlines: $125 each way. Counts as carry-on item. Larger pets travel as checked baggage ($200) or cargo ($300+). Pets must be in approved carrier. Required documents: health certificate (<10 days old), rabies vaccination proof. Service animals fly free. Some destinations require quarantine."
+  },
+  {
+    "id": "doc_016",
+    "title": "Group Booking Discounts",
+    "content": "Groups of 10+ travelers receive 10% discount on flights and 15% on hotels. Groups of 20+ receive 15% and 20% respectively, plus one free trip for group organizer. Block reservations held for 7 days. Deposit of 25% required to confirm. Final payment due 30 days before departure."
+  },
+  {
+    "id": "doc_017",
+    "title": "Payment Methods and Currency",
+    "content": "We accept Visa, Mastercard, American Express, Discover, PayPal, Apple Pay, and Google Pay. International cards accepted with 2.5% foreign transaction fee. Pay in USD, EUR, GBP, CAD, AUD, JPY. Prices locked at booking exchange rate. Split payments allowed for bookings >$1000."
+  },
+  {
+    "id": "doc_018",
+    "title": "Price Match Guarantee",
+    "content": "Found lower price within 24 hours of booking? We'll match it and give additional 10% discount. Must be exact same route, dates, cabin class, and fare type. Low-cost carriers and opaque bookings excluded. Submit claim with competitor screenshot within 24 hours. Refund processed in 5-7 business days."
+  },
+  {
+    "id": "doc_019",
+    "title": "Seat Selection Policy",
+    "content": "Economy: Standard seat selection $15-25, extra legroom $35-50, exit row $40-60. Premium economy and above: free seat selection. Seats auto-assigned 24 hours before departure if not pre-selected. Families with children <12 seated together automatically at no charge."
+  },
+  {
+    "id": "doc_020",
+    "title": "Airport Lounge Access",
+    "content": "Platinum loyalty members enjoy complimentary lounge access worldwide. Gold members receive 6 passes per year. Day passes available for purchase: $45-65 depending on location. Lounges offer complimentary food, beverages, WiFi, showers, and quiet workspaces. Accompanying guests: $35 each."
+  },
+  {
+    "id": "doc_021",
+    "title": "Destination Guide: Thailand Entry Requirements",
+    "content": "Visa-free entry for most nationalities up to 30 days (land/sea) or 45 days (air). Tourism visa available (60 days, $40). Passport valid 6 months beyond arrival. No vaccination requirements but Hepatitis A/B and Typhoid recommended. Currency: Thai Baht (THB). Weather: Hot year-round, rainy season May-October."
+  },
+  {
+    "id": "doc_022",
+    "title": "Destination Guide: Dubai Entry Requirements",
+    "content": "Visa on arrival (30 days) for 70+ nationalities including US, UK, EU, Australia. Passport valid 6 months. No vaccination required. Modest dress code in public areas. Alcohol only in licensed venues. Currency: UAE Dirham (AED). Peak season: November-March (cooler weather)."
+  },
+  {
+    "id": "doc_023",
+    "title": "Flight Delay Compensation - EU Regulation EC 261",
+    "content": "For EU departures/arrivals, delays >3 hours qualify for compensation: €250 (<1500km), €400 (1500-3500km), €600 (>3500km). Excludes extraordinary circumstances (weather, strikes). Meals/refreshments provided for delays >2 hours. Hotel provided if overnight delay. Claims must be filed within3 years."
+  },
+  {
+    "id": "doc_024",
+    "title": "Overbooking and Denied Boarding",
+    "content": "If overbooked, airline seeks volunteers (compensation negotiable). Involuntary bumping: rebooked on next available flight plus compensation up to 400% ticket price (max $1550). Compensation depends on delay length and flight distance. Original booking class maintained. Meals and accommodation provided if necessary."
+  },
+  {
+    "id": "doc_025",
+    "title": "Lost or Damaged Baggage Claims",
+    "content": "Report lost baggage immediately at airport. Airlines liable up to ~$1750 per passenger (international standard). File claim within 7 days for damaged bags, 21 days for delayed bags. Keep receipts for emergency purchases during delay (reasonable expenses reimbursed). Most bags located within 48 hours."
+  },
+  {
+    "id": "doc_026",
+    "title": "Travel Rewards Credit Card Partnership",
+    "content": "JourneyIQ Visa Card: Earn 3X points on travel bookings, 2X on dining, 1X on other purchases. $95 annual fee waived first year. Benefits: $100 annual travel credit, free checked bag, priority boarding, no foreign transaction fees. 50,000 bonus points after $3000 spend in 3 months."
+  },
+  {
+    "id": "doc_027",
+    "title": "Corporate Travel Account Benefits",
+    "content": "Business accounts receive: 15% discount on all bookings, dedicated account manager, flexible payment terms (net 30), consolidated monthly billing, detailed expense reports with GL codes, priority support, free cancellations/changes, and complimentary travel management platform access."
+  },
+  {
+    "id": "doc_028",
+    "title": "Multi-City and Stopover Options",
+    "content": "Book multi-city itineraries with up to 6 segments. Stopovers (>24 hours) in hub cities often free or low cost ($50-100). Popular stopover cities: Iceland (Keflavik), Singapore, Dubai, Tokyo, Istanbul. Use 'Multi-City' search tool to compare routing options and prices."
+  },
+  {
+    "id": "doc_029",
+    "title": "Travel During Peak Seasons - Booking Tips",
+    "content": "Book 3-6 months ahead for peak seasons: Summer in Europe (June-Aug), Winter holidays (Dec 20-Jan 5), Spring Break (March), Chinese New Year. Shoulder seasons (April-May, Sep-Oct) offer 30-40% savings. Track price alerts. Consider alternative airports. Midweek departures generally cheaper than weekends."
+  },
+  {
+    "id": "doc_030",
+    "title": "Sustainable Travel Program",
+    "content": "JourneyIQ Carbon Offset Program: Offset your flight emissions for $5-30 per trip. Funds support verified reforestation and renewable energy projects. Eco-certified hotels highlighted in search (LED lighting, water conservation, local sourcing). Earn 2X loyalty points for choosing sustainable options."
+  },
+  {
+    "id": "doc_031",
+    "title": "24/7 Customer Support Channels",
+    "content": "Support available via: Phone (1-800-JOURNEY), live chat on website/app, email (support@journeyiq.com), Twitter @JourneyIQHelp. Average wait time <3 minutes. Platinum members: priority phone line <1 minute. Emergency support while traveling: +1-800-JOURNEY-911. Language support in 12 languages."
+  },
+  {
+    "id": "doc_032",
+    "title": "Refund Processing Times",
+    "content": "Credit/debit card refunds: 7-10 business days from approval. PayPal: 3-5 business days. Original payment method used unless alternate requested. Loyalty points refunds: immediate. Travel credit expires 12 months from issue date. Check refund status in 'My Bookings' dashboard."
+  }
+]

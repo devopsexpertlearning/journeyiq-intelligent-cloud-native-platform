@@ -1,0 +1,23 @@
+{
+    "type": "object",
+    "properties": {
+        "flight_id": {
+            "type": "string"
+        },
+        "status": {
+            "type": "string"
+        },
+        "delay_minutes": {
+            "type": "integer"
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "required": [
+        "flight_id",
+        "status",
+        "timestamp"
+    ]
+}

@@ -1,0 +1,38 @@
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: gce
+  hosts:
+    - grafana.journeyiq.com
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://prometheus-operated:9090
+      access: proxy
+      isDefault: true
+    - name: Loki
+      type: loki
+      url: http://loki-gateway
+      access: proxy
+
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: ''
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards/default
+
+dashboards:
+  default:
+    journeyiq-golden-signals:
+      file: dashboards/journeyiq-golden-signals.json

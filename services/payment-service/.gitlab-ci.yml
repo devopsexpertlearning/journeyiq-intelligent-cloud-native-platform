@@ -1,0 +1,41 @@
+variables:
+  PROJECT_ID: "journeyiq-prod"
+  payment-service: "payment-service"
+  IMAGE_TAG: "us-central1-docker.pkg.dev/$PROJECT_ID/journeyiq-services/$payment-service:$CI_COMMIT_SHORT_SHA"
+
+stages:
+  - test
+  - build
+  - deploy
+  - rollback
+
+test_job:
+  stage: test
+  image: python:3.11-slim
+  script:
+    - pip install -r requirements.txt
+    - pytest
+
+build_job:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
+
+deploy_job:
+  stage: deploy
+  image: google/cloud-sdk:latest
+  script:
+    - cd ../../k8s/overlays/prod/$payment-service
+    - kustomize edit set image $IMAGE_TAG
+    - kustomize build . | kubectl apply -f -
+
+rollback_job:
+  stage: rollback
+  image: google/cloud-sdk:latest
+  script:
+    - kubectl rollout undo deployment/$payment-service
+  when: manual
