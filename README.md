@@ -80,8 +80,7 @@ journeyiq-intelligent-cloud-native-platform/
 └── portfolio/                         # Portfolio & Demo Assets
     ├── DEMO_SCRIPT.md                 # Demo walkthrough
     └── screenshots/                   # Visual assets
-
----
+```
 
 ## 3. TECHNOLOGY STACK
 
