@@ -190,10 +190,6 @@ Each service has interactive API documentation:
 - Login: `admin` / `admin`
 - Dashboards: JourneyIQ Golden Signals, AI Insights, SLO Report
 
-**MailHog (Email Testing):**
-- URL: http://localhost:8025
-- View all emails sent by notification service
-
 ---
 
 ## Demo Data Available

@@ -224,13 +224,7 @@ curl -X POST http://localhost:8007/payments \
 curl http://localhost:8006/bookings/b0000000-0000-0000-0000-000000000031 | jq
 ```
 
-**Expected:** Status should be `CONFIRMED`
-
-### Step 6: Check Email Notification
-
-Open MailHog: http://localhost:8025
-
-**Expected:** Booking confirmation email sent to alice.voyager@journeyiq.com
+**Expected:** Status should be `CONFIRMED` and notification sent via Postfix
 
 ---
 

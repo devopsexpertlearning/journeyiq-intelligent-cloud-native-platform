@@ -59,8 +59,67 @@ journeyiq-intelligent-cloud-native-platform/
 ├── k8s/                               # Kubernetes Manifests (ArgoCD/Helm/Kustomize)
 │   ├── base/                          # Common manifests (Deployments, Services)
 │   └── overlays/                      # Kustomize patches
+│       ├── dev/                       # Development overlays
+│       └── prod/                      # Production overlays
+│
+├── local/                             # Local Development Environment
+│   ├── docker-compose.yml             # Full stack orchestration
+│   ├── .env.example                   # Environment template
+│   └── scripts/                       # Helper scripts (start.sh, verify_all.py)
+│
+├── shared/                            # Shared Contracts & Utilities
+│   ├── events/                        # Event schemas (Pub/Sub)
+│   ├── schemas/                       # API DTOs, Protobufs
+│   └── auth/                          # Auth middleware
+│
+├── docs/                              # Documentation
+│   ├── ARCHITECTURE.md                # System design & diagrams
+│   ├── API_DOCUMENTATION.md           # Swagger endpoints
+│   └── ADR/                           # Architecture Decision Records
+│
+└── portfolio/                         # Portfolio & Demo Assets
+    ├── DEMO_SCRIPT.md                 # Demo walkthrough
+    └── screenshots/                   # Visual assets
 
-1.  **Strict Environment Separation:**
+---
+
+## 3. TECHNOLOGY STACK
+
+### Core Technologies
+- **Languages:** Python 3.11+ (FastAPI), Go, Node.js
+- **Databases:** PostgreSQL 15, Vector DB (FAISS/Pinecone)
+- **Message Queue:** Google Pub/Sub (Prod), Emulator (Local)
+- **Cache:** Redis
+- **Search:** Elasticsearch/Algolia
+
+### AI/ML Stack
+- **LLM Framework:** LangChain + LangGraph
+- **Models:** Gemini Pro, Azure OpenAI, Groq
+- **Vector Store:** FAISS (local), Pinecone (prod)
+- **RAG Pipeline:** Custom document processing
+
+### Infrastructure
+- **Cloud:** Google Cloud Platform (GCP)
+- **Orchestration:** Google Kubernetes Engine (GKE)
+- **IaC:** Terraform
+- **CI/CD:** GitHub Actions, Cloud Build
+- **Monitoring:** Prometheus, Grafana, Cloud Logging
+
+---
+
+## 4. LOCAL DEVELOPMENT
+
+### Quick Start
+```bash
+cd local/scripts
+sudo ./start.sh
+```
+
+See [GETTING_STARTED.md](docs/GETTING_STARTED.md) for detailed setup instructions.
+
+---
+
+## 5. ARCHITECTURAL PRINCIPLES
     *   **NEVER** use Terraform for local development setup. Local is exclusively `docker-compose`.
     *   **NEVER** hardcode environment-specific logic (e.g., `if env == 'prod'`) inside business logic. Use configuration/dependency injection.
 
@@ -136,9 +195,9 @@ curl -X POST "http://localhost:8012/agent/chat" \
      -d '{"user_id": "test-user", "message": "Find me a flight from NYC to London"}'
 ```
 
-**3. View Metrics**
+**3. View Metrics & Monitoring**
 *   **Grafana:** [http://localhost:3000](http://localhost:3000) (Login: `admin` / `admin`)
-*   **MailHog (Emails):** [http://localhost:8025](http://localhost:8025)
+*   **Prometheus:** [http://localhost:9090](http://localhost:9090)
 
 ### Troubleshooting
 *   **Port Conflicts:** Ensure ports 8000-8015, 5432, and 3000 are free.
