@@ -19,8 +19,17 @@ C4Context
     Rel(user, web, "Uses")
     Rel(web, api, "API Calls", "HTTPS/JSON")
     Rel(web, ai, "Chat", "WebSocket/HTTPS")
-    Rel(ai, llm, "Inference", "API")
+    Rel(api, iot, "Telemetry", "MQTT/HTTP")
+    Rel(api, admin, "Management", "HTTPS")
 ```
+
+## System Components
+- **Core Booking**: User, Search, Booking, Pricing, Inventory, Payment, Ticketing, Review.
+- **Support**: Notification, Analytics, Auth.
+- **New Additions**:
+    - **IoT Service**: Device telemetry for luggage/smart-gates.
+    - **Admin Service**: System dashboard and configuration.
+    - **AI Agent**: Consolidated RAG and LLM interface.
 
 ## Microservices Event Flow (The Booking Saga)
 Communication between services is handled primarily via synchronous API calls for reads and asynchronous Events (Pub/Sub) for writes and sagas.

@@ -1,34 +1,25 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.logging import setup_logging
-from src.routes import health, payments
 from prometheus_fastapi_instrumentator import Instrumentator
-import os
+import logging
+from src.routes import payments
 
-app = FastAPI(
-    title="JourneyIQ Payment Service",
-    version="1.0.0",
-    description="""
-    Payment processing and transaction management.
-    
-    ## Features
-    - Multiple payment methods
-    - PCI-compliant processing
-    - Refund handling
-    - Payment status tracking
-    """,
-    contact={"name": "JourneyIQ API Support", "email": "support@journeyiq.com"},
-    license_info={"name": "MIT"},
-    openapi_tags=[
-        {"name": "Health", "description": "Health check endpoints"},
-        {"name": "Payments", "description": "Payment processing operations"},
-    ]
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='{"asctime": "%(asctime)s", "levelname": "%(levelname)s", "name": "%(name)s", "message": "%(message)s"}'
 )
 
-# Setup Logging
-setup_logging()
+logger = logging.getLogger("payment-service")
 
-# Middleware
+# Create FastAPI app
+app = FastAPI(
+    title="JourneyIQ Payment Service",
+    description="Payment processing with mock gateway and refund handling",
+    version="1.0.0"
+)
+
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -37,19 +28,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Metrics
+# Prometheus metrics
 Instrumentator().instrument(app).expose(app)
 
-# Routes
-app.include_router(health.router, tags=["Health"])
-app.include_router(payments.router, prefix="/payments", tags=["Payments"])
+# Include routers
 
-@app.on_event("startup")
-async def startup_event():
-    # In a real app, initialize DB connection pool here if not using dependency injection
-    pass
 
-@app.get("/health", tags=["Health"])
+@app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    """Health check endpoint"""
+    return {"status": "healthy", "service": "payment-service"}
 
+@app.get("/")
+async def root():
+    """Root endpoint"""
+    return {
+        "service": "payment-service",
+        "version": "1.0.0",
+        "endpoints": {
+            "process_payment": "POST /payments",
+            "get_payment": "GET /payments/{id}",
+            "get_booking_payments": "GET /payments/booking/{booking_id}",
+            "refund_payment": "POST /payments/{id}/refund",
+            "health": "/health"
+        }
+    }
+
+
+# Include routers (After static routes to avoid shadowing)
+# Include routers (After static routes to avoid shadowing)
+app.include_router(payments.router, prefix="/payments")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

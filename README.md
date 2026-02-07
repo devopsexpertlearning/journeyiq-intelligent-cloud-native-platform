@@ -16,8 +16,8 @@ JourneyIQ is a real-time Travel Booking Platform leveraging an event-driven micr
 [**View Detailed Architecture & Diagrams**](docs/ARCHITECTURE.md)
 
 **Core Stats:**
-- **12 Core Microservices**
-- **3 AI/RAG Services**
+- **15 Core Microservices**
+- **1 AI Agent Service** (Consolidated RAG/Vector)
 - **Infrastructure:** Google Cloud Platform (GCP)
 - **Orchestration:** GKE (Production), Docker Compose (Local)
 
@@ -30,7 +30,7 @@ This tree defines the **rigid** structure for the repository. All code must resi
 ```text
 journeyiq-intelligent-cloud-native-platform/
 ├── services/                          # Application Logic (Language: Python/Go/Node)
-│   ├── api-gateway/                   # Entry point, routing, rate limiting
+│   ├── api-gateway/                   # Single Entry Point (Reverse Proxy)
 │   ├── auth-service/                  # Identity, JWT handling
 │   ├── user-service/                  # User profiles, preferences
 │   ├── search-service/                # High-performance search (Elasticsearch/Algolia connector)
@@ -42,9 +42,9 @@ journeyiq-intelligent-cloud-native-platform/
 │   ├── notification-service/          # Email/SMS/Push dispatch
 │   ├── review-service/                # User reviews and ratings
 │   ├── analytics-service/             # Data pipeline ingestion
-│   ├── ai-agent-service/              # Actionable AI Agent (LLM interface)
-│   ├── rag-ingestion-service/         # Document processing pipeline
-│   └── vector-store-service/          # Vector DB interface/management
+│   ├── ai-agent-service/              # Actionable AI Agent (LLM interface, RAG, Vector Ops)
+│   ├── admin-service/                 # [NEW] System administration & monitoring
+│   └── iot-service/                   # [NEW] IoT device tracking & telemetry
 │
 ├── infra/                             # Cloud Infrastructure (Terraform) - PROD/DEV ONLY
 │   ├── terraform/
@@ -187,7 +187,7 @@ Visit [http://localhost:8000/docs](http://localhost:8000/docs) to see the unifie
 **2. Test the AI Agent**
 Use `curl` or Postman to chat with the agent:
 ```bash
-curl -X POST "http://localhost:8012/agent/chat" \
+curl -X POST "http://localhost:8000/agent/chat" \
      -H "Content-Type: application/json" \
      -d '{"user_id": "test-user", "message": "Find me a flight from NYC to London"}'
 ```

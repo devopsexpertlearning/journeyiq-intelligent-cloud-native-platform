@@ -1,0 +1,1 @@
+﻿// TypeScript will resolve .tsx files automatically

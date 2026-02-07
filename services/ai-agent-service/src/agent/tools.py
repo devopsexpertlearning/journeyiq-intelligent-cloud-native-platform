@@ -11,7 +11,8 @@ tools = []
 async def search_flights(origin: str, destination: str, date: str):
     """Search for flights given origin, destination, and date (YYYY-MM-DD)."""
     # Service discovery via env or K8s DNS
-    url = "http://search-service:8000/search"
+    from src.config import settings
+    url = f"{settings.SEARCH_SERVICE_URL}/search"
     async with httpx.AsyncClient() as client:
         try:
             logger.info(f"Tool calling: {url}")
@@ -29,7 +30,8 @@ async def search_flights(origin: str, destination: str, date: str):
 @tool
 async def book_flight(flight_id: str, user_id: str):
     """Book a flight given flight_id and user_id."""
-    url = "http://booking-service:8000/bookings/"
+    from src.config import settings
+    url = f"{settings.BOOKING_SERVICE_URL}/bookings/"
     async with httpx.AsyncClient() as client:
         try:
             # Hardcoded price for demo simplification, real app would verify

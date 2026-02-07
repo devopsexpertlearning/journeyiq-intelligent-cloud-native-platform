@@ -6,7 +6,7 @@ Complete API reference for all JourneyIQ microservices.
 
 **Local Development:**
 - API Gateway: `http://localhost:8000`
-- Direct Service Access: `http://localhost:800X` (see port mapping below)
+- Service Access: All services accessible via Gateway paths (e.g., `/auth`, `/users`).
 
 **Production:**
 - API Gateway: `https://api.journeyiq.com`
@@ -22,7 +22,7 @@ All protected endpoints require JWT authentication.
 **POST** `/auth/login`
 
 ```bash
-curl -X POST http://localhost:8001/auth/login \
+curl -X POST http://localhost:8000/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "alice.voyager@journeyiq.com",
@@ -50,7 +50,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ## Service Endpoints
 
-### 1. Auth Service (Port 8001)
+### 1. Auth Service (Gateway: /auth)
 
 #### Register User
 **POST** `/auth/register`
@@ -74,13 +74,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ---
 
-### 2. User Service (Port 8002)
+### 2. User Service (Gateway: /users)
 
 #### Get User Profile
 **GET** `/users/{user_id}`
 
 ```bash
-curl http://localhost:8002/users/u0000000-0000-0000-0000-000000000001
+curl http://localhost:8000/users/u0000000-0000-0000-0000-000000000001
 ```
 
 #### Update Preferences
@@ -96,7 +96,7 @@ curl http://localhost:8002/users/u0000000-0000-0000-0000-000000000001
 
 ---
 
-### 3. Search Service (Port 8003)
+### 3. Search Service (Gateway: /search)
 
 #### Search Flights
 **GET** `/search/flights`
@@ -108,7 +108,7 @@ curl http://localhost:8002/users/u0000000-0000-0000-0000-000000000001
 - `max_price` (optional): Maximum price
 
 ```bash
-curl "http://localhost:8003/search/flights?origin=JFK&destination=LHR&max_price=700"
+curl "http://localhost:8000/search/flights?origin=JFK&destination=LHR&max_price=700"
 ```
 
 **Response:**
@@ -140,12 +140,12 @@ curl "http://localhost:8003/search/flights?origin=JFK&destination=LHR&max_price=
 - `min_rating` (optional): 1-5
 
 ```bash
-curl "http://localhost:8003/search/hotels?location=Tokyo&min_rating=4.5"
+curl "http://localhost:8000/search/hotels?location=Tokyo&min_rating=4.5"
 ```
 
 ---
 
-### 4. Pricing Service (Port 8004)
+### 4. Pricing Service (Gateway: /pricing)
 
 #### Get Dynamic Price
 **POST** `/pricing/calculate`
@@ -173,7 +173,7 @@ curl "http://localhost:8003/search/hotels?location=Tokyo&min_rating=4.5"
 
 ---
 
-### 5. Booking Service (Port 8006)
+### 5. Booking Service (Gateway: /bookings)
 
 #### Create Booking
 **POST** `/bookings`
@@ -211,7 +211,7 @@ curl "http://localhost:8003/search/hotels?location=Tokyo&min_rating=4.5"
 
 ---
 
-### 6. Payment Service (Port 8007)
+### 6. Payment Service (Gateway: /payments)
 
 #### Process Payment
 **POST** `/payments`
@@ -241,7 +241,7 @@ curl "http://localhost:8003/search/hotels?location=Tokyo&min_rating=4.5"
 
 ---
 
-### 7. AI Agent Service (Port 8012)
+### 7. AI Agent Service (Gateway: /agent)
 
 #### Chat with AI Agent
 **POST** `/agent/chat`
@@ -268,37 +268,11 @@ curl "http://localhost:8003/search/hotels?location=Tokyo&min_rating=4.5"
 
 ---
 
-### 8. Vector Store Service (Port 8014)
 
-#### Search Documents
-**POST** `/search`
-
-```json
-{
-  "query": "cancellation policy",
-  "k": 3
-}
-```
-
-**Response:**
-```json
-{
-  "results": [
-    {
-      "content": "Bookings created more than 24 hours ago...",
-      "score": 0.92,
-      "metadata": {
-        "doc_id": "doc_001",
-        "title": "Flight Cancellation Policy"
-      }
-    }
-  ]
-}
-```
 
 ---
 
-### 9. Review Service (Port 8010)
+### 8. Review Service (Gateway: /reviews)
 
 #### Submit Review
 **POST** `/reviews`
@@ -317,7 +291,7 @@ curl "http://localhost:8003/search/hotels?location=Tokyo&min_rating=4.5"
 
 ---
 
-### 10. Notification Service (Port 8009)
+### 9. Notification Service (Gateway: /notifications)
 
 #### Send Notification
 **POST** `/notifications/send`
@@ -404,15 +378,50 @@ Subscribe to events:
 
 ---
 
+
+---
+
+### 10. IoT Service (Gateway: /iot)
+
+#### Update Device Telemetry
+**POST** `/iot/devices/{device_id}/telemetry`
+
+```json
+{
+  "latitude": 40.7128,
+  "longitude": -74.0060,
+  "battery_level": 85.5
+}
+```
+
+---
+
+### 11. Admin Service (Gateway: /admin)
+
+#### System Health Check
+**GET** `/admin/health-check`
+
+```json
+{
+  "overall_status": "healthy",
+  "services": {
+    "auth": "up",
+    "database": "connected"
+  }
+}
+```
+
+---
+
 ## Interactive Documentation
 
 Each service provides Swagger UI:
 
-- Auth: http://localhost:8001/docs
-- User: http://localhost:8002/docs
-- Search: http://localhost:8003/docs
-- Booking: http://localhost:8006/docs
-- AI Agent: http://localhost:8012/docs
+- Auth: http://localhost:8000/auth/docs
+- User: http://localhost:8000/users/docs
+- Search: http://localhost:8000/search/docs
+- Booking: http://localhost:8000/bookings/docs
+- AI Agent: http://localhost:8000/agent/docs
 
 **Try it out directly in your browser!**
 

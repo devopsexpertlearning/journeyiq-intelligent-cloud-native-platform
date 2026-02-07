@@ -11,3 +11,5 @@ def setup_logging():
     logHandler.setFormatter(formatter)
     logger.addHandler(logHandler)
     logger.setLevel(logging.INFO)
+
+logger = logging.getLogger("inventory-service")

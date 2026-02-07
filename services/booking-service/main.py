@@ -1,34 +1,25 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.logging import setup_logging
-from src.routes import health, bookings
 from prometheus_fastapi_instrumentator import Instrumentator
-import os
+import logging
+from src.routes import bookings
 
-app = FastAPI(
-    title="JourneyIQ Booking Service",
-    version="1.0.0",
-    description="""
-    Booking orchestration and saga management for travel reservations.
-    
-    ## Features
-    - Multi-step booking workflow
-    - Saga pattern implementation
-    - Booking status tracking
-    - Cancellation handling
-    """,
-    contact={"name": "JourneyIQ API Support", "email": "support@journeyiq.com"},
-    license_info={"name": "MIT"},
-    openapi_tags=[
-        {"name": "Health", "description": "Health check endpoints"},
-        {"name": "Bookings", "description": "Booking management operations"},
-    ]
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='{"asctime": "%(asctime)s", "levelname": "%(levelname)s", "name": "%(name)s", "message": "%(message)s"}'
 )
 
-# Setup Logging
-setup_logging()
+logger = logging.getLogger("booking-service")
 
-# Middleware
+# Create FastAPI app
+app = FastAPI(
+    title="JourneyIQ Booking Service",
+    description="Booking management with passenger information and payment integration",
+    version="1.0.0"
+)
+
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -37,19 +28,36 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Metrics
+# Prometheus metrics
 Instrumentator().instrument(app).expose(app)
 
-# Routes
-app.include_router(health.router, tags=["Health"])
-app.include_router(bookings.router, prefix="/bookings", tags=["Bookings"])
+# Include routers
 
-@app.on_event("startup")
-async def startup_event():
-    # In a real app, initialize DB connection pool here if not using dependency injection
-    pass
 
-@app.get("/health", tags=["Health"])
+@app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    """Health check endpoint"""
+    return {"status": "healthy", "service": "booking-service"}
 
+@app.get("/")
+async def root():
+    """Root endpoint"""
+    return {
+        "service": "booking-service",
+        "version": "1.0.0",
+        "endpoints": {
+            "create_booking": "POST /bookings",
+            "get_booking": "GET /bookings/{id}",
+            "list_user_bookings": "GET /bookings/user/{user_id}",
+            "cancel_booking": "DELETE /bookings/{id}",
+            "health": "/health"
+        }
+    }
+
+
+# Include routers (After static routes to avoid shadowing)
+app.include_router(bookings.router)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

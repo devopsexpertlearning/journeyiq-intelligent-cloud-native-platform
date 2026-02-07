@@ -1,17 +1,25 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.logging import setup_logging
-from src.routes import health, search
-
 from prometheus_fastapi_instrumentator import Instrumentator
-import os
+import logging
+from src.routes import flights, hotels
 
-app = FastAPI(title="JourneyIQ Search Service", version="1.0.0")
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='{"asctime": "%(asctime)s", "levelname": "%(levelname)s", "name": "%(name)s", "message": "%(message)s"}'
+)
 
-# Setup Logging
-setup_logging()
+logger = logging.getLogger("search-service")
 
-# Middleware
+# Create FastAPI app
+app = FastAPI(
+    title="JourneyIQ Search Service",
+    description="Flight and hotel search with real-time availability",
+    version="1.0.0"
+)
+
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,20 +28,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Metrics
+# Prometheus metrics
 Instrumentator().instrument(app).expose(app)
 
+# Include routers
+app.include_router(flights.router)
+app.include_router(hotels.router)
 
-# Routes
-app.include_router(health.router, tags=["Health"])
-app.include_router(search.router, tags=["Search"])
-
-@app.on_event("startup")
-async def startup_event():
-    # In a real app, initialize DB connection pool here if not using dependency injection
-    pass
-
-@app.get("/health", tags=["Health"])
+@app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    """Health check endpoint"""
+    return {"status": "healthy", "service": "search-service"}
 
+@app.get("/")
+async def root():
+    """Root endpoint"""
+    return {
+        "service": "search-service",
+        "version": "1.0.0",
+        "endpoints": {
+            "flights": "/search/flights",
+            "hotels": "/search/hotels",
+            "health": "/health"
+        }
+    }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

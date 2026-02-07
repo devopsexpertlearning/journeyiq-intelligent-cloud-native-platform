@@ -1,0 +1,500 @@
+'use client';
+
+import { Suspense, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { Card } from '@/components/Card';
+import { Button } from '@/components/Button';
+import { Badge } from '@/components/Badge';
+import { bookingsApi, ticketingApi, notificationApi } from '@/lib/api';
+import { useToast } from '@/components/Toast';
+
+interface FlightDetails {
+    flight_number: string;
+    origin: string;
+    origin_code?: string;
+    destination: string;
+    destination_code?: string;
+    departure_time: string;
+    arrival_time: string;
+    duration_minutes: number;
+    airline: string;
+    price: number;
+    class_type?: string;
+}
+
+interface Booking {
+    id: string;
+    status: string;
+    total_amount: number;
+    created_at: string;
+    resource_type: string;
+    resource_details?: FlightDetails;
+    passengers: any[];
+    contact_email?: string;
+    contact_phone?: string;
+}
+
+interface Passenger {
+    first_name: string;
+    last_name: string;
+    title?: string;
+    date_of_birth?: string;
+    passport_number?: string;
+    email?: string;
+    phone?: string;
+}
+
+interface PriceBreakdown {
+    base_fare: number;
+    taxes: number;
+    extras: number;
+    total: number;
+}
+
+function SuccessContent() {
+    const searchParams = useSearchParams();
+    const bookingId = searchParams.get('bookingId');
+    const { showToast } = useToast();
+
+    const [booking, setBooking] = useState<Booking | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [downloading, setDownloading] = useState(false);
+    const [emailSending, setEmailSending] = useState(false);
+    const [ticketId, setTicketId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchBooking = async () => {
+            if (!bookingId) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                // First try to load from API
+                const data = await bookingsApi.get(bookingId);
+                console.log('API Booking data:', data);
+
+                const flight = data.resource_details || {};
+                const originCode = flight.origin_code || flight.origin?.match(/\(([^)]+)\)/)?.[1] || flight.origin?.split(' ')[0] || 'LAX';
+                const destCode = flight.destination_code || flight.destination?.match(/\(([^)]+)\)/)?.[1] || flight.destination?.split(' ')[0] || 'JFK';
+
+                // Calculate breakdown
+                const passengerCount = data.passengers?.length || 1;
+                const baseFare = flight.price || 0;
+                const taxes = baseFare * passengerCount * 0.15;
+                const total = data.total_amount || (baseFare * passengerCount + taxes);
+
+                setBooking({
+                    id: data.id || bookingId,
+                    status: data.status || 'CONFIRMED',
+                    total_amount: total,
+                    created_at: data.created_at || new Date().toISOString(),
+                    resource_type: data.resource_type || 'FLIGHT',
+                    resource_details: {
+                        ...flight,
+                        origin_code: originCode,
+                        destination_code: destCode
+                    },
+                    passengers: data.passengers || [],
+                    contact_email: data.passengers?.[0]?.email || data.contact_email || 'passenger@example.com',
+                    contact_phone: data.passengers?.[0]?.phone || data.contact_phone || '+1-555-000-0000'
+                });
+            } catch (error) {
+                console.error('Failed to fetch booking from API', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchBooking();
+    }, [bookingId]);
+
+    const handleDownloadTicket = async () => {
+        if (!bookingId || !booking) return;
+        setDownloading(true);
+        try {
+            const passenger = booking.passengers?.[0] || { first_name: 'Passenger', last_name: 'One' };
+
+            // Generate ticket via API
+            const ticketRes = await ticketingApi.generate(bookingId, {
+                first_name: passenger.first_name,
+                last_name: passenger.last_name,
+                seat_number: '12A'
+            });
+
+            if (ticketRes.ticket_id) {
+                setTicketId(ticketRes.ticket_id);
+                // Open PDF download URL in new tab
+                const downloadUrl = ticketingApi.getDownloadUrl(ticketRes.ticket_id);
+                window.open(downloadUrl, '_blank');
+                showToast('E-Ticket downloaded successfully!', 'success');
+            }
+        } catch (error: any) {
+            console.error('Ticket Error', error);
+            showToast('Failed to download ticket. Please try again.', 'error');
+        } finally {
+            setDownloading(false);
+        }
+    };
+
+    const handleEmailConfirmation = async () => {
+        if (!booking || !bookingId) return;
+        setEmailSending(true);
+        try {
+            const passenger = booking.passengers?.[0] || { first_name: 'Passenger', last_name: 'One' };
+            const flight = (booking.resource_details || {}) as FlightDetails;
+            const originCode = flight.origin_code || flight.origin?.split('(')[1]?.replace(')', '') || flight.origin || 'Unknown';
+            const destCode = flight.destination_code || flight.destination?.split('(')[1]?.replace(')', '') || flight.destination || 'Unknown';
+
+            const content = `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
+                        <h1 style="margin: 0;">✈️ Booking Confirmed!</h1>
+                        <p style="margin: 10px 0 0 0;">Confirmation: ${booking.id.substring(0, 8).toUpperCase()}</p>
+                    </div>
+                    <div style="padding: 30px; background: #f5f5f5;">
+                        <h2 style="color: #333;">Flight Details</h2>
+                        <p><strong>${flight.airline || 'JourneyIQ Air'}</strong> - ${flight.flight_number}</p>
+                        <p>${originCode} → ${destCode}</p>
+                        <p>${formatDate(flight.departure_time)} at ${formatTime(flight.departure_time)}</p>
+                        
+                        <h2 style="color: #333;">Passenger</h2>
+                        <p>${passenger.first_name} ${passenger.last_name}</p>
+                        
+                        <h2 style="color: #333;">Total Paid</h2>
+                        <p style="font-size: 24px; font-weight: bold; color: #667eea;">$${(booking.total_amount || 0).toFixed(2)}</p>
+                        
+                        <a href="${typeof window !== 'undefined' ? window.location.origin : ''}/dashboard/bookings/${booking.id}"
+                           style="display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; margin-top: 20px;">
+                            View Booking Details
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            await notificationApi.sendBookingConfirmation(
+                bookingId,
+                booking.contact_email || 'passenger@example.com',
+                `Your JourneyIQ Booking Confirmation - ${booking.id.substring(0, 8).toUpperCase()}`,
+                content
+            );
+            showToast('Confirmation email sent successfully!', 'success');
+        } catch (error: any) {
+            console.error('Email Error', error);
+            showToast('Failed to send email. Please try again.', 'error');
+        } finally {
+            setEmailSending(false);
+        }
+    };
+
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return 'Date TBD';
+        try {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+            });
+        } catch (e) {
+            return 'Invalid Date';
+        }
+    };
+
+    const formatTime = (dateString?: string) => {
+        if (!dateString) return '--:--';
+        try {
+            return new Date(dateString).toLocaleTimeString('en-US', {
+                hour: '2-digit', minute: '2-digit'
+            });
+        } catch (e) {
+            return '--:--';
+        }
+    };
+
+    const formatDateTime = (dateString?: string) => {
+        if (!dateString) return 'Date TBD';
+        try {
+            return new Date(dateString).toLocaleString('en-US', {
+                month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+        } catch (e) {
+            return 'Invalid Date';
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="booking-container text-center p-8">
+                <div className="loading-spinner"></div>
+                <p className="mt-4 text-[var(--text-secondary)]">Generating your confirmation...</p>
+            </div>
+        );
+    }
+
+    if (!booking) {
+        return (
+            <div className="booking-container text-center p-8">
+                <h2 className="text-2xl font-bold mb-4">Booking Not Found</h2>
+                <p className="text-[var(--text-secondary)] mb-6">We couldn't locate your booking details.</p>
+                <Link href="/">
+                    <Button>Return to Home</Button>
+                </Link>
+            </div>
+        );
+    }
+
+    const flight = (booking.resource_details || {}) as FlightDetails;
+    const originCode = flight.origin_code || flight.origin?.split('(')[1]?.replace(')', '') || flight.origin?.split(' ')[0] || 'LAX';
+    const destCode = flight.destination_code || flight.destination?.split('(')[1]?.replace(')', '') || flight.destination?.split(' ')[0] || 'JFK';
+    const prices: PriceBreakdown = {
+        base_fare: (flight.price || 0) * (booking.passengers?.length || 1),
+        taxes: ((flight.price || 0) * (booking.passengers?.length || 1)) * 0.15,
+        extras: 0,
+        total: booking.total_amount || ((flight.price || 0) * (booking.passengers?.length || 1) * 1.15)
+    };
+
+    return (
+        <div className="booking-layout">
+            <div className="booking-header" style={{ textAlign: 'center' }}>
+                <div className="confirmation-badge" style={{ width: '64px', height: '64px', margin: '0 auto 16px' }}>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: '#22c55e' }}>
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                </div>
+                <h1 className="booking-title" style={{ fontSize: '32px', marginBottom: '8px' }}>Booking Confirmed!</h1>
+                <p className="booking-subtitle" style={{ marginBottom: '8px' }}>
+                    Confirmation number: <span style={{ fontWeight: 'bold', color: 'var(--brand-primary)' }}>{booking.id.substring(0, 8).toUpperCase()}</span>
+                </p>
+                <p className="booking-subtitle" style={{ color: 'var(--text-secondary)' }}>
+                    A confirmation email has been sent to <span style={{ fontWeight: '500' }}>{booking.contact_email}</span>
+                </p>
+            </div>
+
+            <div className="booking-content">
+                <div className="booking-main">
+                    <Card className="review-section">
+                        <div className="section-header">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
+                            </svg>
+                            <h2>Flight Details</h2>
+                            <Badge variant="success" className="ml-auto">{booking.status}</Badge>
+                        </div>
+
+                        <div className="flight-info-card">
+                            <div className="airline-header">
+                                <div className="airline-logo">{flight.airline?.substring(0, 2) || 'JQ'}</div>
+                                <div>
+                                    <div className="airline-name">{flight.airline || 'JourneyIQ Air'}</div>
+                                    <div className="flight-number">{flight.flight_number || 'Flight'}</div>
+                                </div>
+                            </div>
+
+                            <div className="flight-route">
+                                <div className="route-point">
+                                    <div className="route-time">{formatTime(flight.departure_time)}</div>
+                                    <div className="route-location" style={{ fontSize: '24px', fontWeight: 'bold' }}>{originCode}</div>
+                                    <div className="route-date">{formatDate(flight.departure_time)}</div>
+                                </div>
+
+                                <div className="route-line">
+                                    <div className="route-duration">{Math.floor((flight.duration_minutes || 0) / 60)}h {(flight.duration_minutes || 0) % 60}m</div>
+                                    <div className="route-arrow">
+                                        <svg width="100%" height="2" viewBox="0 0 100 2">
+                                            <line x1="0" y1="1" x2="100" y2="1" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" />
+                                        </svg>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <div className="route-point">
+                                    <div className="route-time">{formatTime(flight.arrival_time)}</div>
+                                    <div className="route-location" style={{ fontSize: '24px', fontWeight: 'bold' }}>{destCode}</div>
+                                    <div className="route-date">{formatDate(flight.arrival_time)}</div>
+                                </div>
+                            </div>
+
+                            <div className="flight-meta" style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+                                <Badge variant="info">Economy</Badge>
+                                <Badge variant="neutral">Terminal 4</Badge>
+                                <Badge variant="neutral">Gate D4</Badge>
+                            </div>
+
+                            <div className="baggage-info" style={{ display: 'flex', gap: '24px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-primary)' }}>
+                                <div className="baggage-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                                        <line x1="3" y1="6" x2="21" y2="6" />
+                                        <path d="M16 10a4 4 0 0 1-8 0" />
+                                    </svg>
+                                    <span>Cabin: 1 bag (7kg)</span>
+                                </div>
+                                <div className="baggage-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <rect x="1" y="3" width="15" height="13" />
+                                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                                        <circle cx="5.5" cy="18.5" r="2.5" />
+                                        <circle cx="18.5" cy="18.5" r="2.5" />
+                                    </svg>
+                                    <span>Checked: 1 bag (23kg)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </Card>
+
+                    <Card className="review-section">
+                        <div className="section-header">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            </svg>
+                            <h2>Passengers ({booking.passengers?.length || 0})</h2>
+                        </div>
+
+                        <div className="passengers-list">
+                            {booking.passengers?.length > 0 ? (
+                                booking.passengers.map((passenger: Passenger, index: number) => (
+                                    <div key={index} className="passenger-item" style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '12px', background: 'var(--surface-secondary)', borderRadius: '8px', marginBottom: '8px' }}>
+                                        <div className="passenger-number" style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--brand-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{index + 1}</div>
+                                        <div className="passenger-details" style={{ flex: 1 }}>
+                                            <div className="passenger-name" style={{ fontWeight: '600', fontSize: '16px' }}>
+                                                {passenger.title || 'Mr./Ms.'} {passenger.first_name} {passenger.last_name}
+                                            </div>
+                                            <div className="passenger-info" style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                                                DOB: {passenger.date_of_birth?.split('T')[0] || 'N/A'} • Passport: {passenger.passport_number || 'N/A'}
+                                            </div>
+                                            <div className="passenger-contact" style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                                                {passenger.email || booking.contact_email} • {passenger.phone || booking.contact_phone}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="empty-text" style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '20px' }}>No passenger information available</p>
+                            )}
+                        </div>
+                    </Card>
+
+                    <Card className="review-section">
+                        <div className="section-header">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                                <line x1="1" y1="10" x2="23" y2="10" />
+                            </svg>
+                            <h2>Payment Information</h2>
+                        </div>
+
+                        <div className="payment-details-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                            <div className="payment-detail-item">
+                                <div className="payment-detail-label" style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Payment Status</div>
+                                <Badge variant="success">{booking.status}</Badge>
+                            </div>
+                            <div className="payment-detail-item">
+                                <div className="payment-detail-label" style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Payment Method</div>
+                                <div className="payment-detail-value" style={{ fontWeight: '500' }}>Credit Card</div>
+                            </div>
+                            <div className="payment-detail-item">
+                                <div className="payment-detail-label" style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Booked On</div>
+                                <div className="payment-detail-value" style={{ fontWeight: '500' }}>{formatDateTime(booking.created_at)}</div>
+                            </div>
+                            <div className="payment-detail-item">
+                                <div className="payment-detail-label" style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Contact Email</div>
+                                <div className="payment-detail-value" style={{ fontWeight: '500' }}>{booking.contact_email}</div>
+                            </div>
+                            <div className="payment-detail-item">
+                                <div className="payment-detail-label" style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Contact Phone</div>
+                                <div className="payment-detail-value" style={{ fontWeight: '500' }}>{booking.contact_phone}</div>
+                            </div>
+                        </div>
+                    </Card>
+
+                    <div className="action-buttons" style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
+                        <Button onClick={handleDownloadTicket} isLoading={downloading} size="xl" style={{ flex: 1 }}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '8px' }}>
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7 10 12 15 17 10" />
+                                <line x1="12" y1="15" x2="12" y2="3" />
+                            </svg>
+                            Download E-Ticket (PDF)
+                        </Button>
+                        <Button onClick={handleEmailConfirmation} variant="secondary" size="xl" style={{ flex: 1 }} isLoading={emailSending}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '8px' }}>
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                            Email Confirmation
+                        </Button>
+                    </div>
+
+                    <div className="help-section" style={{ marginTop: '32px' }}>
+                        <div className="help-card" style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '20px', background: 'var(--surface-secondary)', borderRadius: '12px' }}>
+                            <div className="help-icon" style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--brand-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                                </svg>
+                            </div>
+                            <div className="help-content" style={{ flex: 1 }}>
+                                <div className="help-title" style={{ fontWeight: '600', marginBottom: '4px' }}>Need Assistance?</div>
+                                <div className="help-text" style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Our customer support team is available 24/7 to help you with any questions.</div>
+                            </div>
+                            <Button variant="secondary" size="sm">Contact Support</Button>
+                        </div>
+                    </div>
+                </div>
+
+                <aside className="booking-sidebar">
+                    <Card className="price-summary">
+                        <h3 className="summary-title" style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>Booking Summary</h3>
+
+                        <div className="summary-section" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                            <div className="summary-label">Base Fare ({booking.passengers?.length || 0} passenger{(booking.passengers?.length || 0) !== 1 ? 's' : ''})</div>
+                            <div className="summary-value">${prices.base_fare.toFixed(2)}</div>
+                        </div>
+
+                        <div className="summary-section" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                            <div className="summary-label">Taxes & Fees</div>
+                            <div className="summary-value">${prices.taxes.toFixed(2)}</div>
+                        </div>
+
+                        <div className="summary-divider" style={{ height: '1px', background: 'var(--border-primary)', margin: '16px 0' }}></div>
+
+                        <div className="summary-total" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <div className="total-label" style={{ fontWeight: '600', fontSize: '16px' }}>Total Paid</div>
+                            <div className="total-value" style={{ fontWeight: '700', fontSize: '20px', color: 'var(--brand-primary)' }}>${prices.total.toFixed(2)}</div>
+                        </div>
+                        </Card>
+
+                    <div style={{ marginTop: '16px' }}>
+                        <Card className="important-info-card">
+                            <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>Important Information</h4>
+                        <ul className="info-list" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                            <li style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px', fontSize: '14px' }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, marginTop: '2px', color: 'var(--brand-primary)' }}>
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="16" x2="12" y2="12" />
+                                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                                </svg>
+                                <span>Check-in opens 24 hours before departure</span>
+                            </li>
+                            <li style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px', fontSize: '14px' }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, marginTop: '2px', color: 'var(--brand-primary)' }}>
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="16" x2="12" y2="12" />
+                                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                                </svg>
+                                <span>Arrive at least 3 hours before international flights</span>
+                            </li>
+                            <li style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px', fontSize: '14px' }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, marginTop: '2px', color: 'var(--brand-primary)' }}>
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="16" x2="12" y2="12" />
+                                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                                </svg>
+                                <span>Bring valid passport and travel documents</span>
+                            </li>
+                            <li style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '14px' }}>

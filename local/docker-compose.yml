@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # ====================
   # Infrastructure Services
@@ -25,45 +23,45 @@ services:
     networks:
       - journeyiq-network
 
-  pubsub-emulator:
-    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:latest
-    container_name: journeyiq-pubsub
-    command: gcloud beta emulators pubsub start --host-port=0.0.0.0:8085 --project=journeyiq-local
-    ports:
-      - "8085:8085"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8085"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - journeyiq-network
+  # pubsub-emulator:
+  #   image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators
+  #   container_name: journeyiq-pubsub
+  #   command: gcloud beta emulators pubsub start --host-port=0.0.0.0:8085 --project=journeyiq-local
+  #   ports:
+  #     - "8085:8085"
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8085"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   networks:
+  #     - journeyiq-network
 
   # ====================
   # Core Microservices
   # ====================
 
-  api-gateway:
-    build:
-      context: ../services/api-gateway
-      dockerfile: Dockerfile
-    container_name: journeyiq-api-gateway
-    ports:
-      - "8000:8000"
-    env_file:
-      - .env
-    depends_on:
-      postgres:
-        condition: service_healthy
-      pubsub-emulator:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-    networks:
-      - journeyiq-network
+  # api-gateway:
+  #   build:
+  #     context: ../services/api-gateway
+  #     dockerfile: Dockerfile
+  #   container_name: journeyiq-api-gateway
+  #   ports:
+  #     - "8000:8000"
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     # pubsub-emulator:
+  #     #   condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+  #     interval: 15s
+  #     timeout: 5s
+  #     retries: 3
+  #   networks:
+  #     - journeyiq-network
 
   auth-service:
     build:
@@ -100,8 +98,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      pubsub-emulator:
-        condition: service_healthy
+      # pubsub-emulator:
+      #   condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 15s
@@ -162,8 +160,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      pubsub-emulator:
-        condition: service_healthy
+      # pubsub-emulator:
+      #   condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 15s
@@ -185,8 +183,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      pubsub-emulator:
-        condition: service_healthy
+      # pubsub-emulator:
+      #   condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 15s
@@ -207,8 +205,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      pubsub-emulator:
-        condition: service_healthy
+      # pubsub-emulator:
+      #   condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 15s
@@ -229,8 +227,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      pubsub-emulator:
-        condition: service_healthy
+      # pubsub-emulator:
+      #   condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 15s
@@ -254,8 +252,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      pubsub-emulator:
-        condition: service_healthy
+      # pubsub-emulator:
+      #   condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 15s
@@ -276,8 +274,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      pubsub-emulator:
-        condition: service_healthy
+      # pubsub-emulator:
+      #   condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 15s
@@ -298,8 +296,42 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      pubsub-emulator:
-        condition: service_healthy
+      # pubsub-emulator:
+      #   condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  admin-service:
+    build:
+      context: ../services/admin-service
+      dockerfile: Dockerfile
+    container_name: journeyiq-admin
+    ports:
+      - "8014:8000"
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  iot-service:
+    build:
+      context: ../services/iot-service
+      dockerfile: Dockerfile
+    container_name: journeyiq-iot
+    ports:
+      - "8013:8000"
+    env_file:
+      - .env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 15s
@@ -328,56 +360,7 @@ services:
       - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
       - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
       - GROQ_MODEL_NAME=${GROQ_MODEL_NAME}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      vector-store-service:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-    networks:
-      - journeyiq-network
-
-  rag-ingestion-service:
-    build:
-      context: ../services/rag-ingestion-service
-      dockerfile: Dockerfile
-    container_name: journeyiq-rag-ingestion
-    ports:
-      - "8013:8000"
-    env_file:
-      - .env
-    environment:
-      - RAG_DOCUMENTS_PATH=/app/data/rag_documents.json
-    volumes:
-      - ./seed-data/rag_documents.json:/app/data/rag_documents.json:ro
-    depends_on:
-      vector-store-service:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-    networks:
-      - journeyiq-network
-
-  vector-store-service:
-    build:
-      context: ../services/vector-store-service
-      dockerfile: Dockerfile
-    container_name: journeyiq-vector-store
-    ports:
-      - "8014:8000"
-    env_file:
-      - .env
-    environment:
-      - FAISS_INDEX_PATH=/app/vectorstore/faiss_index
-    volumes:
-      - vector_store_data:/app/vectorstore
+      - GROQ_MODEL_NAME=${GROQ_MODEL_NAME}
     depends_on:
       postgres:
         condition: service_healthy
@@ -446,8 +429,89 @@ services:
     container_name: journeyiq-postfix
     ports:
       - "2525:25"  # SMTP accessible on localhost:2525
+    env_file:
+      - .env
+    environment:
+      - SMTP_EMAIL=${SMTP_EMAIL}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
     healthcheck:
       test: ["CMD-SHELL", "nc -z 127.0.0.1 25 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  # ====================
+  # Frontend Applications
+  # ====================
+
+  consumer-web:
+    build:
+      context: ../services/consumer-web
+      dockerfile: Dockerfile
+    container_name: journeyiq-consumer-web
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      # - API_URL=http://api-gateway:8000
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_AUTH_URL=http://localhost:8001
+      - NEXT_PUBLIC_USER_URL=http://localhost:8002
+      - NEXT_PUBLIC_SEARCH_URL=http://localhost:8003
+      - NEXT_PUBLIC_PRICING_URL=http://localhost:8004
+      - NEXT_PUBLIC_INVENTORY_URL=http://localhost:8005
+      - NEXT_PUBLIC_BOOKING_URL=http://localhost:8006
+      - NEXT_PUBLIC_PAYMENT_URL=http://localhost:8007
+      - NEXT_PUBLIC_TICKETING_URL=http://localhost:8008
+      - NEXT_PUBLIC_NOTIFICATION_URL=http://localhost:8009
+      - NEXT_PUBLIC_REVIEW_URL=http://localhost:8010
+      - NEXT_PUBLIC_ANALYTICS_URL=http://localhost:8011
+      - NEXT_PUBLIC_AI_AGENT_URL=http://localhost:8012
+      - NEXT_PUBLIC_IOT_URL=http://localhost:8013
+      - NEXT_PUBLIC_ADMIN_URL=http://localhost:8014
+    depends_on:
+      auth-service:
+         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - journeyiq-network
+
+  admin-web:
+    build:
+      context: ../services/admin-web
+      dockerfile: Dockerfile
+    container_name: journeyiq-admin-web
+    ports:
+      - "3002:3000"
+    environment:
+      - NODE_ENV=production
+      # - API_URL=http://api-gateway:8000
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_AUTH_URL=http://localhost:8001
+      - NEXT_PUBLIC_USER_URL=http://localhost:8002
+      - NEXT_PUBLIC_SEARCH_URL=http://localhost:8003
+      - NEXT_PUBLIC_PRICING_URL=http://localhost:8004
+      - NEXT_PUBLIC_INVENTORY_URL=http://localhost:8005
+      - NEXT_PUBLIC_BOOKING_URL=http://localhost:8006
+      - NEXT_PUBLIC_PAYMENT_URL=http://localhost:8007
+      - NEXT_PUBLIC_TICKETING_URL=http://localhost:8008
+      - NEXT_PUBLIC_NOTIFICATION_URL=http://localhost:8009
+      - NEXT_PUBLIC_REVIEW_URL=http://localhost:8010
+      - NEXT_PUBLIC_ANALYTICS_URL=http://localhost:8011
+      - NEXT_PUBLIC_AI_AGENT_URL=http://localhost:8012
+      - NEXT_PUBLIC_IOT_URL=http://localhost:8013
+      - NEXT_PUBLIC_ADMIN_URL=http://localhost:8014
+    depends_on:
+      auth-service:
+         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

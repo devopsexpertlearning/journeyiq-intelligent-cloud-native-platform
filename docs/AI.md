@@ -15,14 +15,14 @@ Configurable via `LLM_PROVIDER` env var:
 - `gemini`: High context window, used for large RAG tasks.
 
 ## RAG Pipeline
-### Ingestion (`rag-ingestion-service`)
+### Ingestion (`ai-agent-service`)
 1.  **Source:** `rag_documents.json` (Policies, FAQs).
 2.  **Chunking:** `RecursiveCharacterTextSplitter` (500 chars).
 3.  **Embedding:** `sentence-transformers/all-MiniLM-L6-v2`.
-4.  **Storage:** Vectors stored in FAISS (`vector-store-service`).
+4.  **Storage:** Vectors stored in local ChromaDB/FAISS within `ai-agent-service`.
 
 ### Retrieval
-The Agent queries `vector-store-service` via HTTP to fetch relevant context before answering user queries.
+The Agent queries the internal vector store to fetch relevant context before answering user queries.
 
 ## Canary Testing
 New prompts or models are tested using a **Canary Deployment**:

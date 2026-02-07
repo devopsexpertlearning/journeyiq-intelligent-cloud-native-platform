@@ -11,20 +11,20 @@ Each service provides interactive API documentation at the `/docs` endpoint:
 | Service | Swagger UI | OpenAPI Spec |
 |---------|------------|--------------|
 | **API Gateway** | http://localhost:8000/docs | http://localhost:8000/openapi.json |
-| **Auth Service** | http://localhost:8001/docs | http://localhost:8001/openapi.json |
-| **User Service** | http://localhost:8002/docs | http://localhost:8002/openapi.json |
-| **Search Service** | http://localhost:8003/docs | http://localhost:8003/openapi.json |
-| **Pricing Service** | http://localhost:8004/docs | http://localhost:8004/openapi.json |
-| **Inventory Service** | http://localhost:8005/docs | http://localhost:8005/openapi.json |
-| **Booking Service** | http://localhost:8006/docs | http://localhost:8006/openapi.json |
-| **Payment Service** | http://localhost:8007/docs | http://localhost:8007/openapi.json |
-| **Ticketing Service** | http://localhost:8008/docs | http://localhost:8008/openapi.json |
-| **Notification Service** | http://localhost:8009/docs | http://localhost:8009/openapi.json |
-| **Review Service** | http://localhost:8010/docs | http://localhost:8010/openapi.json |
-| **Analytics Service** | http://localhost:8011/docs | http://localhost:8011/openapi.json |
-| **AI Agent Service** | http://localhost:8012/docs | http://localhost:8012/openapi.json |
-| **RAG Ingestion Service** | http://localhost:8013/docs | http://localhost:8013/openapi.json |
-| **Vector Store Service** | http://localhost:8014/docs | http://localhost:8014/openapi.json |
+| **Auth Service** | http://localhost:8000/auth/docs | http://localhost:8000/auth/openapi.json |
+| **User Service** | http://localhost:8000/users/docs | http://localhost:8000/users/openapi.json |
+| **Search Service** | http://localhost:8000/search/docs | http://localhost:8000/search/openapi.json |
+| **Pricing Service** | http://localhost:8000/pricing/docs | http://localhost:8000/pricing/openapi.json |
+| **Inventory Service** | http://localhost:8000/inventory/docs | http://localhost:8000/inventory/openapi.json |
+| **Booking Service** | http://localhost:8000/bookings/docs | http://localhost:8000/bookings/openapi.json |
+| **Payment Service** | http://localhost:8000/payments/docs | http://localhost:8000/payments/openapi.json |
+| **Ticketing Service** | http://localhost:8000/ticketing/docs | http://localhost:8000/ticketing/openapi.json |
+| **Notification Service** | http://localhost:8000/notifications/docs | http://localhost:8000/notifications/openapi.json |
+| **Review Service** | http://localhost:8000/reviews/docs | http://localhost:8000/reviews/openapi.json |
+| **Analytics Service** | http://localhost:8000/analytics/docs | http://localhost:8000/analytics/openapi.json |
+| **AI Agent Service** | http://localhost:8000/agent/docs | http://localhost:8000/agent/openapi.json |
+| **IoT Service** | http://localhost:8000/iot/docs | http://localhost:8000/iot/openapi.json |
+| **Admin Service** | http://localhost:8000/admin/docs | http://localhost:8000/admin/openapi.json |
 
 ## Features
 
@@ -34,12 +34,7 @@ Each Swagger UI page provides:
 - **Schema Documentation**: View data models and validation rules
 - **Authentication**: Test authenticated endpoints (where applicable)
 
-## Quick Test
 
-To verify all Swagger pages are accessible, run:
-```bash
-python3 local/scripts/check_swagger.py
-```
 
 ## Alternative Documentation
 
