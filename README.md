@@ -275,14 +275,14 @@ curl -X POST "http://localhost:8000/agent/chat" \
         <img src="docs/home-8.jpg" alt="Home Screen 8" style="width:100%;">
       </a>
       <br>
-      <em>Payment Screen</em>
+      <em>Booking Flow - Step 3</em>
     </td>
     <td>
       <a href="docs/home-9.jpg">
         <img src="docs/home-9.jpg" alt="Home Screen 9" style="width:100%;">
       </a>
       <br>
-      <em>Confirmation Success</em>
+      <em>Booking Flow - Step 4</em>
     </td>
   </tr>
   <tr>
@@ -291,14 +291,14 @@ curl -X POST "http://localhost:8000/agent/chat" \
         <img src="docs/home-10.jpg" alt="Home Screen 10" style="width:100%;">
       </a>
       <br>
-      <em>Admin Dashboard - Overview</em>
+      <em>Payment Screen</em>
     </td>
     <td>
       <a href="docs/HOME-11.jpg">
         <img src="docs/HOME-11.jpg" alt="Home Screen 11" style="width:100%;">
       </a>
       <br>
-      <em>Admin Dashboard - Analytics</em>
+      <em>Confirmation Success</em>
     </td>
   </tr>
 </table>
