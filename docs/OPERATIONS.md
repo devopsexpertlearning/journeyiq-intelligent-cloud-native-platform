@@ -55,7 +55,7 @@ Logs are structured JSON.
 - **Impact:** New pods crash or serve errors.
 - **Recovery:** CI/CD pipeline supports rollback.
   ```bash
-  kubectl rollout undo deployment/auth-service
+
   ```
 
 ## 4. Cost Optimization

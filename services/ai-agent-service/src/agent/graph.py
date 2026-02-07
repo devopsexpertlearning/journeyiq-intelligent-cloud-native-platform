@@ -39,7 +39,7 @@ async def action_node(state: AgentState):
     last_message = messages[-1]
     # Execute tool calls
     tool_input = last_message.tool_calls[0]
-    action = ToolExecutor(tools).invoke(tool_input)
+    action = await tool_executor.ainvoke(tool_input)
     
     logger.info(json.dumps({"event": "tool_execution", "tool": tool_input["name"], "input": tool_input["args"], "result": str(action)}))
     

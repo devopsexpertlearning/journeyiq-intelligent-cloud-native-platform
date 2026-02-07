@@ -1,22 +1,22 @@
-# Build stage
-FROM python:3.11-slim as builder
+# Multi-stage build for Notification Service - Optimized for size
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
-
+# Install build dependencies in one layer
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
+# Create virtual environment
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
+# Copy and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Final stage
+# Final stage - minimal runtime image
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -25,16 +25,22 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH"
 
-# Install curl for healthcheck and libgomp1 for ML libraries
+# Install only runtime dependencies in one layer
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
-    libgomp1 \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
+# Copy virtual environment from builder
 COPY --from=builder /opt/venv /opt/venv
+
+# Copy application code
 COPY . .
 
-RUN useradd -m appuser && chown -R appuser /app
+# Create non-root user and set permissions in one layer
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+
 USER appuser
 
 EXPOSE 8000

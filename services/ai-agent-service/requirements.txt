@@ -5,12 +5,20 @@ asyncpg==0.29.0
 pydantic-settings==2.1.0
 python-json-logger==2.0.7
 prometheus-fastapi-instrumentator==7.0.0
+# LangChain for AI Agent
 langchain>=0.1.0,<0.2.0
 langchain-core>=0.1.10,<0.2.0
 langgraph>=0.0.26,<0.1.0
 langchain-groq==0.0.1
 langchain-google-genai>=0.1.0
 langchain-openai==0.0.5
+langchain-text-splitters==0.0.1
+# Vector Store dependencies
+numpy==1.26.3
+faiss-cpu==1.7.4
+# torch installed separately in Dockerfile as CPU-only
+sentence-transformers>=3.0.0
+# HTTP client
 httpx==0.26.0
 tenacity==8.2.3
-chromadb==0.4.22
+email-validator==2.1.0.post1

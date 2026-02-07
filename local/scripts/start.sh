@@ -81,16 +81,26 @@ sleep 30
 echo ""
 echo -e "${GREEN}Checking service health...${NC}"
 
-services=("api-gateway:8000" "auth-service:8001" "user-service:8002" "search-service:8003" "pricing-service:8004" "inventory-service:8005" "booking-service:8006" "payment-service:8007" "ticketing-service:8008" "notification-service:8009" "review-service:8010" "analytics-service:8011" "ai-agent-service:8012" "rag-ingestion-service:8013" "vector-store-service:8014")
+services=("api-gateway" "auth" "users" "search" "pricing" "inventory" "bookings" "payments" "ticketing" "notifications" "reviews" "analytics" "iot" "admin" "agent" "consumer-web" "admin-web")
 
 healthy_count=0
 for service in "${services[@]}"; do
-    IFS=':' read -r name port <<< "$service"
-    if curl -sf "http://localhost:$port/health" > /dev/null 2>&1; then
-        echo -e "${GREEN}✓${NC} $name"
+    # Gateway itself is at root /health, others are at /<service>/health
+    if [ "$service" == "api-gateway" ]; then
+        url="http://localhost:8000/health"
+    elif [ "$service" == "consumer-web" ]; then
+        url="http://localhost:3001"
+    elif [ "$service" == "admin-web" ]; then
+        url="http://localhost:3002"
+    else
+        url="http://localhost:8000/$service/health"
+    fi
+
+    if curl -sf "$url" > /dev/null 2>&1; then
+        echo -e "${GREEN}✓${NC} $service"
         healthy_count=$((healthy_count + 1))
     else
-        echo -e "${RED}✗${NC} $name (may still be starting)"
+        echo -e "${RED}✗${NC} $service (may still be starting)"
     fi
 done
 
@@ -103,24 +113,14 @@ echo "========================================="
 echo -e "${GREEN}JourneyIQ Platform Started!${NC}"
 echo "========================================="
 echo ""
-echo "Services ready: $healthy_count/15"
+echo "Services ready: $healthy_count/17"
 echo ""
 echo "📊 Service Endpoints:"
-echo "  API Gateway:        http://localhost:8000"
-echo "  Auth Service:       http://localhost:8001"
-echo "  User Service:       http://localhost:8002"
-echo "  Search Service:     http://localhost:8003"
-echo "  Pricing Service:    http://localhost:8004"
-echo "  Inventory Service:  http://localhost:8005"
-echo "  Booking Service:    http://localhost:8006"
-echo "  Payment Service:    http://localhost:8007"
-echo "  Ticketing Service:  http://localhost:8008"
-echo "  Notification Service: http://localhost:8009"
-echo "  Review Service:     http://localhost:8010"
-echo "  Analytics Service:  http://localhost:8011"
-echo "  AI Agent Service:   http://localhost:8012"
-echo "  RAG Ingestion:      http://localhost:8013"
-echo "  Vector Store:       http://localhost:8014"
+echo "  All services accessible via Gateway: http://localhost:8000"
+echo "  Example: http://localhost:8000/auth/health"
+echo "  Example: http://localhost:8000/agent/chat
+  Consumer Web: http://localhost:3001
+  Admin Web:    http://localhost:3002"
 echo ""
 echo "📈 Observability:"
 echo "  Prometheus:         http://localhost:9090"
@@ -129,7 +129,7 @@ echo "  Postfix SMTP:       localhost:2525 (No UI)"
 echo ""
 echo "📝 API Documentation:"
 echo "  Each service has Swagger UI at /docs endpoint"
-echo "  Example: http://localhost:8001/docs"
+echo "  Example: http://localhost:8000/auth/docs"
 echo ""
 echo "To view logs: docker-compose logs -f [service-name]"
 echo "To stop all:  docker-compose down"

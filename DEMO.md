@@ -30,9 +30,10 @@ Wait for all services to be healthy (15/15).
 ### 1. Verify All Services Running
 
 ```bash
-# Check all health endpoints
-for port in {8000..8014}; do
-  echo "Port $port: $(curl -s http://localhost:$port/health | jq -r '.status // "N/A"')"
+# Check all health endpoints via Gateway
+services=("auth" "users" "search" "pricing" "inventory" "bookings" "payments" "ticketing" "notifications" "reviews" "analytics" "iot" "admin" "agent")
+for service in "${services[@]}"; do
+  echo "Service $service: $(curl -s http://localhost:8000/$service/health | jq -r '.status // "N/A"')"
 done
 ```
 
@@ -56,7 +57,7 @@ done
 ### 1. Ask About Flight Cancellation Policy
 
 ```bash
-curl -X POST http://localhost:8012/agent/chat \
+curl -X POST http://localhost:8000/agent/chat \
   -H "Content-Type: application/json" \
   -d '{
     "message": "What is the flight cancellation policy?",
@@ -74,7 +75,7 @@ curl -X POST http://localhost:8012/agent/chat \
 ### 2. Ask About Baggage Allowance
 
 ```bash
-curl -X POST http://localhost:8012/agent/chat \
+curl -X POST http://localhost:8000/agent/chat \
   -H "Content-Type: application/json" \
   -d '{
     "message": "What is the baggage allowance for economy class?",
@@ -87,7 +88,7 @@ curl -X POST http://localhost:8012/agent/chat \
 ### 3. Ask About Loyalty Program
 
 ```bash
-curl -X POST http://localhost:8012/agent/chat \
+curl -X POST http://localhost:8000/agent/chat \
   -H "Content-Type: application/json" \
   -d '{
     "message": "Tell me about the Gold tier loyalty benefits",
@@ -100,7 +101,7 @@ curl -X POST http://localhost:8012/agent/chat \
 ### 4. Verify RAG Retrieval
 
 ```bash
-curl -X POST http://localhost:8014/search \
+curl -X POST http://localhost:8000/admin/search \
   -H "Content-Type: application/json" \
   -d '{
     "query": "cancellation policy",
@@ -117,13 +118,15 @@ curl -X POST http://localhost:8014/search \
 ### Step 1: Search for Flights
 
 ```bash
-curl "http://localhost:8003/search/flights?origin=JFK&destination=LHR&max_price=700" | jq
+curl -X POST "http://localhost:8000/search/flights" \
+  -H "Content-Type: application/json" \
+  -d '{"origin": "JFK", "destination": "LHR", "departure_date": "2026-06-01"}' | jq
 ```
 
 **Expected Response:**
 ```json
 {
-  "flights": [
+  "results": [
     {
       "id": "f0000000-0000-0000-0000-000000000001",
       "flight_number": "JQ101",
@@ -143,7 +146,7 @@ curl "http://localhost:8003/search/flights?origin=JFK&destination=LHR&max_price=
 ### Step 2: Get User Profile
 
 ```bash
-curl http://localhost:8002/users/u0000000-0000-0000-0000-000000000001 | jq
+curl http://localhost:8000/users/u0000000-0000-0000-0000-000000000001 | jq
 ```
 
 **Expected:**
@@ -163,29 +166,29 @@ curl http://localhost:8002/users/u0000000-0000-0000-0000-000000000001 | jq
 ### Step 3: Create Booking
 
 ```bash
-curl -X POST http://localhost:8006/bookings \
+curl -X POST http://localhost:8000/bookings \
   -H "Content-Type: application/json" \
   -d '{
     "user_id": "u0000000-0000-0000-0000-000000000001",
-    "resource_type": "FLIGHT",
-    "resource_id": "f0000000-0000-0000-0000-000000000001",
+    "flight_id": "f0000000-0000-0000-0000-000000000001",
     "passengers": [
       {
-        "name": "Alice Voyager",
-        "seat": "10A"
+        "first_name": "Alice",
+        "last_name": "Voyager",
+        "date_of_birth": "1990-01-01"
       }
-    ]
+    ],
+    "class_type": "ECONOMY"
   }' | jq
 ```
 
 **Expected:**
 ```json
 {
-  "booking_id": "b0000000-0000-0000-0000-000000000031",
+  "id": "b0000000-0000-0000-0000-000000000031",
   "status": "PENDING",
-  "payment_required": true,
-  "amount": 720.00,
-  "currency": "USD"
+  "total_amount": 720.00,
+  "flight_details": {...}
 }
 ```
 
@@ -194,7 +197,7 @@ curl -X POST http://localhost:8006/bookings \
 ### Step 4: Process Payment
 
 ```bash
-curl -X POST http://localhost:8007/payments \
+curl -X POST http://localhost:8000/payments \
   -H "Content-Type: application/json" \
   -d '{
     "booking_id": "b0000000-0000-0000-0000-000000000031",
@@ -203,7 +206,8 @@ curl -X POST http://localhost:8007/payments \
     "payment_method": {
       "type": "CARD",
       "card_number": "4111111111111111",
-      "expiry": "12/25",
+      "expiry_month": "12",
+      "expiry_year": "25",
       "cvv": "123"
     }
   }' | jq
@@ -221,7 +225,7 @@ curl -X POST http://localhost:8007/payments \
 ### Step 5: Verify Booking Status
 
 ```bash
-curl http://localhost:8006/bookings/b0000000-0000-0000-0000-000000000031 | jq
+curl http://localhost:8000/bookings/b0000000-0000-0000-0000-000000000031 | jq
 ```
 
 **Expected:** Status should be `CONFIRMED` and notification sent via Postfix
@@ -269,7 +273,7 @@ Open: http://localhost:3000
 ### 1. Publish Event to Pub/Sub
 
 ```bash
-curl -X POST http://localhost:8006/events/publish \
+curl -X POST http://localhost:8000/bookings/events/publish \
   -H "Content-Type: application/json" \
   -d '{
     "event_type": "booking.created",
@@ -295,7 +299,7 @@ docker-compose logs notification-service | grep "booking.created"
 
 ### 1. Auth Service API
 
-Open: http://localhost:8001/docs
+Open: http://localhost:8000/auth/docs
 
 **Try:**
 - POST `/auth/login` with demo credentials
@@ -303,7 +307,7 @@ Open: http://localhost:8001/docs
 
 ### 2. AI Agent API
 
-Open: http://localhost:8012/docs
+Open: http://localhost:8000/agent/docs
 
 **Try:**
 - POST `/agent/chat` with different questions
@@ -311,7 +315,7 @@ Open: http://localhost:8012/docs
 
 ### 3. Booking Service API
 
-Open: http://localhost:8006/docs
+Open: http://localhost:8000/bookings/docs
 
 **Try:**
 - GET `/bookings/{booking_id}`
@@ -337,7 +341,7 @@ export let options = {
 };
 
 export default function() {
-  http.post('http://localhost:8012/agent/chat', JSON.stringify({
+  http.post('http://localhost:8000/agent/chat', JSON.stringify({
     message: 'What is the cancellation policy?',
     user_id: 'u0000000-0000-0000-0000-000000000001'
   }), {

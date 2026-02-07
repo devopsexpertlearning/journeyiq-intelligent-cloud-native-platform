@@ -1,16 +1,25 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.logging import setup_logging
-from src.routes import health
 from prometheus_fastapi_instrumentator import Instrumentator
-import os
+import logging
+from src.routes import tickets
 
-app = FastAPI(title="JourneyIQ Ticketing Iervice", version="1.0.0")
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='{"asctime": "%(asctime)s", "levelname": "%(levelname)s", "name": "%(name)s", "message": "%(message)s"}'
+)
 
-# Setup Logging
-setup_logging()
+logger = logging.getLogger("ticketing-service")
 
-# Middleware
+# Create FastAPI app
+app = FastAPI(
+    title="JourneyIQ Ticketing Service",
+    description="E-ticket generation with PDF and QR code support",
+    version="1.0.0"
+)
+
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,18 +28,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Metrics
+# Prometheus metrics
 Instrumentator().instrument(app).expose(app)
 
-# Routes
-app.include_router(health.router, tags=["Health"])
+# Include routers
 
-@app.on_event("startup")
-async def startup_event():
-    # In a real app, initialize DB connection pool here if not using dependency injection
-    pass
 
-@app.get("/health", tags=["Health"])
+@app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    """Health check endpoint"""
+    return {"status": "healthy", "service": "ticketing-service"}
 
+@app.get("/")
+async def root():
+    """Root endpoint"""
+    return {
+        "service": "ticketing-service",
+        "version": "1.0.0",
+        "endpoints": {
+            "generate_ticket": "POST /ticketing/generate",
+            "get_ticket": "GET /ticketing/{id}",
+            "download_pdf": "GET /ticketing/{id}/download",
+            "validate_ticket": "POST /ticketing/{id}/validate",
+            "use_ticket": "POST /ticketing/{id}/use",
+            "health": "/health"
+        }
+    }
+
+
+# Include routers (After static routes to avoid shadowing)
+app.include_router(tickets.router)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

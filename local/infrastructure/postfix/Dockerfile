@@ -2,7 +2,7 @@
 FROM alpine:latest
 
 # Install Postfix
-RUN apk add --no-cache postfix rsyslog supervisor
+RUN apk add --no-cache postfix cyrus-sasl ca-certificates
 
 # Configure Postfix
 # Enable stdout logging
@@ -16,6 +16,6 @@ EXPOSE 25
 
 # Simple startup script
 COPY start.sh /start.sh
-RUN chmod +x /start.sh
+RUN sed -i 's/\r$//' /start.sh && chmod +x /start.sh
 
 CMD ["/start.sh"]

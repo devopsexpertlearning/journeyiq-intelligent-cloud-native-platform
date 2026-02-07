@@ -1,16 +1,25 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.logging import setup_logging
-from src.routes import health
 from prometheus_fastapi_instrumentator import Instrumentator
-import os
+import logging
+from src.routes import availability
 
-app = FastAPI(title="JourneyIQ Inventory Nervice", version="1.0.0")
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='{"asctime": "%(asctime)s", "levelname": "%(levelname)s", "name": "%(name)s", "message": "%(message)s"}'
+)
 
-# Setup Logging
-setup_logging()
+logger = logging.getLogger("inventory-service")
 
-# Middleware
+# Create FastAPI app
+app = FastAPI(
+    title="JourneyIQ Inventory Service",
+    description="Real-time seat and room availability tracking",
+    version="1.0.0"
+)
+
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,18 +28,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Metrics
+# Prometheus metrics
 Instrumentator().instrument(app).expose(app)
 
-# Routes
-app.include_router(health.router, tags=["Health"])
+# Include routers
+app.include_router(availability.router)
 
-@app.on_event("startup")
-async def startup_event():
-    # In a real app, initialize DB connection pool here if not using dependency injection
-    pass
-
-@app.get("/health", tags=["Health"])
+@app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    """Health check endpoint"""
+    return {"status": "healthy", "service": "inventory-service"}
 
+@app.get("/")
+async def root():
+    """Root endpoint"""
+    return {
+        "service": "inventory-service",
+        "version": "1.0.0",
+        "endpoints": {
+            "flight_seats": "/inventory/flights/{flight_id}/seats",
+            "hotel_rooms": "/inventory/hotels/{hotel_id}/rooms",
+            "summary": "/inventory/availability/summary",
+            "health": "/health"
+        }
+    }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

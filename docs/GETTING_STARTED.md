@@ -71,8 +71,7 @@ JourneyIQ Platform Started!
 Services ready: 15/15
 
 📊 Service Endpoints:
-  API Gateway:        http://localhost:8000
-  Auth Service:       http://localhost:8001
+  All services accessible via Gateway: http://localhost:8000
   ...
 ```
 
@@ -81,7 +80,7 @@ Services ready: 15/15
 Open your browser and check:
 
 - **API Gateway Health:** http://localhost:8000/health
-- **Swagger UI (Auth):** http://localhost:8001/docs
+- **Swagger UI (Auth):** http://localhost:8000/auth/docs
 - **Prometheus:** http://localhost:9090
 - **Grafana:** http://localhost:3000 (admin/admin)
 
@@ -92,7 +91,7 @@ Open your browser and check:
 ### 1. Test the AI Agent
 
 ```bash
-curl -X POST http://localhost:8012/agent/chat \
+curl -X POST http://localhost:8000/agent/chat \
   -H "Content-Type: application/json" \
   -d '{
     "message": "What is the flight cancellation policy?",
@@ -110,13 +109,13 @@ curl -X POST http://localhost:8012/agent/chat \
 ### 2. Search for Flights
 
 ```bash
-curl http://localhost:8003/search/flights?origin=JFK&destination=LHR
+curl "http://localhost:8000/search/flights?origin=JFK&destination=LHR"
 ```
 
 ### 3. Get User Profile
 
 ```bash
-curl http://localhost:8002/users/u0000000-0000-0000-0000-000000000001
+curl http://localhost:8000/users/u0000000-0000-0000-0000-000000000001
 ```
 
 ---
@@ -147,21 +146,11 @@ curl http://localhost:8002/users/u0000000-0000-0000-0000-000000000001
 ```
 
 **Port Mapping:**
-- `8000` - API Gateway
-- `8001` - Auth Service
-- `8002` - User Service
-- `8003` - Search Service
-- `8004` - Pricing Service
-- `8005` - Inventory Service
-- `8006` - Booking Service
-- `8007` - Payment Service
-- `8008` - Ticketing Service
-- `8009` - Notification Service
-- `8010` - Review Service
-- `8011` - Analytics Service
-- `8012` - AI Agent Service
-- `8013` - RAG Ingestion Service
-- `8014` - Vector Store Service
+- `8000` - API Gateway (Reverse Proxy for all services)
+- `9090` - Prometheus
+- `3000` - Grafana
+- `2525` - Postfix SMTP
+- *(Individual service ports 8001-8014 are internal only)*
 
 ---
 
@@ -169,12 +158,12 @@ curl http://localhost:8002/users/u0000000-0000-0000-0000-000000000001
 
 ### Swagger API Documentation
 
-Each service has interactive API documentation:
+Each service has interactive API documentation accessible via the Gateway:
 
-- Auth Service: http://localhost:8001/docs
-- AI Agent: http://localhost:8012/docs
-- Booking: http://localhost:8006/docs
-- *(Pattern: http://localhost:PORT/docs)*
+- Auth Service: http://localhost:8000/auth/docs
+- AI Agent: http://localhost:8000/agent/docs
+- Booking: http://localhost:8000/bookings/docs
+- *(Pattern: http://localhost:8000/<service>/docs)*
 
 ### Observability
 
@@ -252,19 +241,7 @@ pytest
 ./scripts/run_all_tests.sh
 ```
 
-### Adding New RAG Documents
 
-1. Edit `local/seed-data/rag_documents.json`
-2. Restart RAG ingestion service:
-   ```bash
-   docker-compose restart rag-ingestion-service
-   ```
-3. Verify indexing:
-   ```bash
-   curl http://localhost:8014/search -X POST \
-     -H "Content-Type: application/json" \
-     -d '{"query": "your test query", "k": 3}'
-   ```
 
 ---
 

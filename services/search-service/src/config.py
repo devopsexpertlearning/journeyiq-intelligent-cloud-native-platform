@@ -1,10 +1,12 @@
+import os
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost/auth_db"
-    ENVIRONMENT: str = "local"
-    
-    class Config:
-        env_file = ".env"
+    DATABASE_URL: str = os.getenv(
+        "DATABASE_URL",
+        "postgresql+asyncpg://postgres:postgres@postgres:5432/journeyiq"
+    )
+    SERVICE_NAME: str = "search-service"
+    LOG_LEVEL: str = "INFO"
 
 settings = Settings()

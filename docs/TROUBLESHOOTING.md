@@ -58,7 +58,7 @@ Common issues and solutions for JourneyIQ platform.
 3. **Verify health check:**
    ```bash
    docker-compose ps
-   curl http://localhost:8001/health
+   curl http://localhost:8000/auth/health
    ```
 
 ---
@@ -134,16 +134,9 @@ Common issues and solutions for JourneyIQ platform.
 
 3. **Test with simple query:**
    ```bash
-   curl -X POST http://localhost:8012/agent/chat \
+   curl -X POST http://localhost:8000/agent/chat \
      -H "Content-Type: application/json" \
      -d '{"message": "hello", "user_id": "u0000000-0000-0000-0000-000000000001"}'
-   ```
-
-4. **Check vector store is indexed:**
-   ```bash
-   curl -X POST http://localhost:8014/search \
-     -H "Content-Type: application/json" \
-     -d '{"query": "test", "k": 1}'
    ```
 
 ### RAG Returns No Results
@@ -152,20 +145,14 @@ Common issues and solutions for JourneyIQ platform.
 
 **Solutions:**
 
-1. **Verify documents indexed:**
+1. **Verify documents indexed (internal log):**
    ```bash
-   docker-compose logs rag-ingestion-service
+   docker-compose logs ai-agent-service
    ```
 
-2. **Re-index documents:**
+2. **Restart AI service:**
    ```bash
-   docker-compose restart rag-ingestion-service
-   docker-compose restart vector-store-service
-   ```
-
-3. **Check document count:**
-   ```bash
-   docker-compose exec vector-store-service python -c "from src.vector_db import db_instance; print(len(db_instance.metadata))"
+   docker-compose restart ai-agent-service
    ```
 
 ---
@@ -181,7 +168,7 @@ Common issues and solutions for JourneyIQ platform.
 1. **Verify token format:**
    ```bash
    # Should be: Authorization: Bearer <token>
-   curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8002/users/u123
+   curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8000/users/u123
    ```
 
 2. **Check token expiration:**
@@ -200,7 +187,7 @@ Common issues and solutions for JourneyIQ platform.
 **Solutions:**
 
 1. **Check request body format:**
-   - Use Swagger UI at `http://localhost:PORT/docs`
+   - Use Swagger UI at `http://localhost:8000/<service>/docs`
    - Verify all required fields present
    - Check data types match schema
 
@@ -258,10 +245,6 @@ Common issues and solutions for JourneyIQ platform.
    docker-compose restart <service-name>
    ```
 
-3. **Reduce vector store size:**
-   - Limit RAG documents
-   - Reduce FAISS index dimensions
-
 ---
 
 ## Pub/Sub Emulator Issues
@@ -305,7 +288,7 @@ Common issues and solutions for JourneyIQ platform.
 
 2. **Verify metrics endpoint:**
    ```bash
-   curl http://localhost:8001/metrics
+   curl http://localhost:8000/auth/metrics
    ```
 
 3. **Check Prometheus config:**
@@ -414,10 +397,11 @@ docker-compose logs -f <service-name>
 ### Check Service Health
 
 ```bash
-# Health check script
-for port in {8000..8014}; do
-  status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$port/health)
-  echo "Port $port: $status"
+# Health check script via Gateway
+services=("auth" "users" "search" "pricing" "inventory" "bookings" "payments" "ticketing" "notifications" "reviews" "analytics" "iot" "admin" "agent")
+for service in "${services[@]}"; do
+  status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/$service/health)
+  echo "Service $service: $status"
 done
 ```
 

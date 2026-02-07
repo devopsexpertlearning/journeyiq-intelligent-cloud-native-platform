@@ -1,0 +1,50 @@
+                                <span>Arrive at least 3 hours before international flights</span>
+                            </li>
+                            <li style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px', fontSize: '14px' }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, marginTop: '2px', color: 'var(--brand-primary)' }}>
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="16" x2="12" y2="12" />
+                                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                                </svg>
+                                <span>Bring valid passport and travel documents</span>
+                            </li>
+                            <li style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '14px' }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, marginTop: '2px', color: 'var(--brand-primary)' }}>
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="16" x2="12" y2="12" />
+                                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                                </svg>
+                                <span>Gate closes 20 minutes before departure</span>
+                            </li>
+                        </ul>
+                    </Card>
+
+                    <Link href="/dashboard" style={{ display: 'block', marginTop: '16px' }}>
+                        <Button variant="secondary" className="w-full" style={{ width: '100%' }}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '8px' }}>
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                <polyline points="9 22 9 12 15 12 15 22" />
+                            </svg>
+                            View All Bookings
+                        </Button>
+                    </Link>
+                </aside>
+            </div>
+        </div>
+    );
+}
+
+export default function SuccessPage() {
+    return (
+        <main className="booking-page">
+            <Suspense fallback={
+                <div className="booking-container text-center p-8">
+                    <div className="loading-spinner"></div>
+                    <p className="mt-4 text-[var(--text-secondary)]">Loading confirmation...</p>
+                </div>
+            }>
+                <SuccessContent />
+            </Suspense>
+        </main>
+    );
+}

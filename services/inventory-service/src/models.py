@@ -1,41 +1,45 @@
-from sqlalchemy import Column, String, TIMESTAMP, text, DECIMAL, Boolean, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import Column, String, TIMESTAMP, DECIMAL, Boolean
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import ForeignKey
 
 Base = declarative_base()
 
 class Flight(Base):
     __tablename__ = "flights"
+
     id = Column(UUID(as_uuid=True), primary_key=True)
-    flight_number = Column(String, nullable=False)
-    origin = Column(String, nullable=False)
-    destination = Column(String, nullable=False)
+    flight_number = Column(String(20), nullable=False)
+    origin = Column(String(3), nullable=False)
+    destination = Column(String(3), nullable=False)
     departure_time = Column(TIMESTAMP(timezone=True), nullable=False)
     arrival_time = Column(TIMESTAMP(timezone=True), nullable=False)
     base_price = Column(DECIMAL(10, 2), nullable=False)
-    status = Column(String, server_default='SCHEDULED')
-
-class Hotel(Base):
-    __tablename__ = "hotels"
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    name = Column(String, nullable=False)
-    location = Column(String, nullable=False)
-    rating = Column(DECIMAL(2, 1))
-    amenities = Column(JSONB)
+    status = Column(String(20), default='SCHEDULED')
 
 class Seat(Base):
     __tablename__ = "seats"
+
     id = Column(UUID(as_uuid=True), primary_key=True)
-    flight_id = Column(UUID(as_uuid=True), ForeignKey("flights.id"))
-    seat_number = Column(String, nullable=False)
-    class_ = Column("class", String, nullable=False)
-    is_available = Column(Boolean, server_default='true')
+    flight_id = Column(UUID(as_uuid=True), ForeignKey('flights.id'))
+    seat_number = Column(String(5), nullable=False)
+    class_type = Column(String(20), nullable=False, name='class')  # ECONOMY, BUSINESS, FIRST
+    is_available = Column(Boolean, default=True)
+
+class Hotel(Base):
+    __tablename__ = "hotels"
+
+    id = Column(UUID(as_uuid=True), primary_key=True)
+    name = Column(String(255), nullable=False)
+    location = Column(String(255), nullable=False)
+    rating = Column(DECIMAL(2, 1))
 
 class Room(Base):
     __tablename__ = "rooms"
+
     id = Column(UUID(as_uuid=True), primary_key=True)
-    hotel_id = Column(UUID(as_uuid=True), ForeignKey("hotels.id"))
-    room_number = Column(String, nullable=False)
-    type = Column(String, nullable=False)
+    hotel_id = Column(UUID(as_uuid=True), ForeignKey('hotels.id'))
+    room_number = Column(String(10), nullable=False)
+    type = Column(String(50), nullable=False)  # SINGLE, DOUBLE, SUITE
     price_night = Column(DECIMAL(10, 2), nullable=False)
-    is_available = Column(Boolean, server_default='true')
+    is_available = Column(Boolean, default=True)

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.logging import setup_logging
-from src.routes import health
+from src.routes import health, users
 from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(
@@ -41,6 +41,7 @@ Instrumentator().instrument(app).expose(app)
 
 # Routes
 app.include_router(health.router, tags=["Health"])
+app.include_router(users.router, tags=["Users"], prefix="/users")
 
 @app.on_event("startup")
 async def startup_event():
