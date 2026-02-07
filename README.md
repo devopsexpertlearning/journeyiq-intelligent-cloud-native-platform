@@ -9,6 +9,19 @@
 
 ---
 
+## Table of Contents
+
+- [1. System Context](#1-system-context)
+- [2. Repository Structure](#2-repository-structure-authoritative)
+- [3. Technology Stack](#3-technology-stack)
+- [4. Local Development](#4-local-development)
+- [5. Architectural Principles](#5-architectural-principles)
+- [6. Design Decisions & Rationale](#6-design-decisions--rationale)
+- [7. How to Test Locally](#7-how-to-test-locally)
+- [8. Portfolio](#8-portfolio)
+
+---
+
 ## 1. SYSTEM CONTEXT
 
 JourneyIQ is a real-time Travel Booking Platform leveraging an event-driven microservices architecture. It integrates advanced AI capabilities including actionable agents and RAG (Retrieval-Augmented Generation) pipelines.
@@ -199,5 +212,96 @@ curl -X POST "http://localhost:8000/agent/chat" \
 ### Troubleshooting
 *   **Port Conflicts:** Ensure ports 8000-8015, 5432, and 3000 are free.
 *   **Logs:** Run `docker-compose logs -f [service_name]` inside the `local/` folder to debug specific services.
+
+---
+
+
+## 8. PORTFOLIO
+
+### Dashboard & Home Screens
+
+<table>
+  <tr>
+    <td width="50%">
+      <a href="docs/home-1.jpg">
+        <img src="docs/home-1.jpg" alt="Home Screen 1" style="width:100%;">
+      </a>
+      <br>
+      <em>Home Screen - Main View</em>
+    </td>
+    <td width="50%">
+      <a href="docs/home-2.jpg">
+        <img src="docs/home-2.jpg" alt="Home Screen 2" style="width:100%;">
+      </a>
+      <br>
+      <em>Home Screen - Alternate View</em>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="docs/home-3.jpg">
+        <img src="docs/home-3.jpg" alt="Home Screen 3" style="width:100%;">
+      </a>
+      <br>
+      <em>Search Results</em>
+    </td>
+    <td>
+      <a href="docs/home-5.jpg">
+        <img src="docs/home-5.jpg" alt="Home Screen 5" style="width:100%;">
+      </a>
+      <br>
+      <em>User Profile</em>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="docs/home-6.jpg">
+        <img src="docs/home-6.jpg" alt="Home Screen 6" style="width:100%;">
+      </a>
+      <br>
+      <em>Booking Flow - Step 1</em>
+    </td>
+    <td>
+      <a href="docs/home-7.jpg">
+        <img src="docs/home-7.jpg" alt="Home Screen 7" style="width:100%;">
+      </a>
+      <br>
+      <em>Booking Flow - Step 2</em>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="docs/home-8.jpg">
+        <img src="docs/home-8.jpg" alt="Home Screen 8" style="width:100%;">
+      </a>
+      <br>
+      <em>Booking Flow - Step 3</em>
+    </td>
+    <td>
+      <a href="docs/home-9.jpg">
+        <img src="docs/home-9.jpg" alt="Home Screen 9" style="width:100%;">
+      </a>
+      <br>
+      <em>Booking Flow - Step 4</em>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="docs/home-10.jpg">
+        <img src="docs/home-10.jpg" alt="Home Screen 10" style="width:100%;">
+      </a>
+      <br>
+      <em>Payment Screen</em>
+    </td>
+    <td>
+      <a href="docs/HOME-11.jpg">
+        <img src="docs/HOME-11.jpg" alt="Home Screen 11" style="width:100%;">
+      </a>
+      <br>
+      <em>Confirmation Success</em>
+    </td>
+  </tr>
+</table>
+
 
 
