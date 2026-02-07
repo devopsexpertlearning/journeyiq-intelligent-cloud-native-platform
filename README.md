@@ -223,60 +223,80 @@ curl -X POST "http://localhost:8000/agent/chat" \
 <table>
   <tr>
     <td width="50%">
-      <img src="docs/home-1.jpg" alt="Home Screen 1" style="width:100%;">
+      <a href="docs/home-1.jpg">
+        <img src="docs/home-1.jpg" alt="Home Screen 1" style="width:100%;">
+      </a>
       <br>
       <em>Home Screen - Main View</em>
     </td>
     <td width="50%">
-      <img src="docs/home-2.jpg" alt="Home Screen 2" style="width:100%;">
+      <a href="docs/home-2.jpg">
+        <img src="docs/home-2.jpg" alt="Home Screen 2" style="width:100%;">
+      </a>
       <br>
       <em>Home Screen - Alternate View</em>
     </td>
   </tr>
   <tr>
     <td>
-      <img src="docs/home-3.jpg" alt="Home Screen 3" style="width:100%;">
+      <a href="docs/home-3.jpg">
+        <img src="docs/home-3.jpg" alt="Home Screen 3" style="width:100%;">
+      </a>
       <br>
       <em>Search Results</em>
     </td>
     <td>
-      <img src="docs/home-5.jpg" alt="Home Screen 5" style="width:100%;">
+      <a href="docs/home-5.jpg">
+        <img src="docs/home-5.jpg" alt="Home Screen 5" style="width:100%;">
+      </a>
       <br>
       <em>User Profile</em>
     </td>
   </tr>
   <tr>
     <td>
-      <img src="docs/home-6.jpg" alt="Home Screen 6" style="width:100%;">
+      <a href="docs/home-6.jpg">
+        <img src="docs/home-6.jpg" alt="Home Screen 6" style="width:100%;">
+      </a>
       <br>
       <em>Booking Flow - Step 1</em>
     </td>
     <td>
-      <img src="docs/home-7.jpg" alt="Home Screen 7" style="width:100%;">
+      <a href="docs/home-7.jpg">
+        <img src="docs/home-7.jpg" alt="Home Screen 7" style="width:100%;">
+      </a>
       <br>
       <em>Booking Flow - Step 2</em>
     </td>
   </tr>
   <tr>
     <td>
-      <img src="docs/home-8.jpg" alt="Home Screen 8" style="width:100%;">
+      <a href="docs/home-8.jpg">
+        <img src="docs/home-8.jpg" alt="Home Screen 8" style="width:100%;">
+      </a>
       <br>
       <em>Payment Screen</em>
     </td>
     <td>
-      <img src="docs/home-9.jpg" alt="Home Screen 9" style="width:100%;">
+      <a href="docs/home-9.jpg">
+        <img src="docs/home-9.jpg" alt="Home Screen 9" style="width:100%;">
+      </a>
       <br>
       <em>Confirmation Success</em>
     </td>
   </tr>
   <tr>
     <td>
-      <img src="docs/home-10.jpg" alt="Home Screen 10" style="width:100%;">
+      <a href="docs/home-10.jpg">
+        <img src="docs/home-10.jpg" alt="Home Screen 10" style="width:100%;">
+      </a>
       <br>
       <em>Admin Dashboard - Overview</em>
     </td>
     <td>
-      <img src="docs/HOME-11.jpg" alt="Home Screen 11" style="width:100%;">
+      <a href="docs/HOME-11.jpg">
+        <img src="docs/HOME-11.jpg" alt="Home Screen 11" style="width:100%;">
+      </a>
       <br>
       <em>Admin Dashboard - Analytics</em>
     </td>
