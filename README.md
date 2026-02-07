@@ -200,4 +200,22 @@ curl -X POST "http://localhost:8000/agent/chat" \
 *   **Port Conflicts:** Ensure ports 8000-8015, 5432, and 3000 are free.
 *   **Logs:** Run `docker-compose logs -f [service_name]` inside the `local/` folder to debug specific services.
 
+---
+
+## 8. PORTFOLIO
+
+### Dashboard & Home Screens
+
+![Home 1](docs/home-1.jpg)
+![Home 2](docs/home-2.jpg)
+![Home 3](docs/home-3.jpg)
+![Home 5](docs/home-5.jpg)
+![Home 6](docs/home-6.jpg)
+![Home 7](docs/home-7.jpg)
+![Home 8](docs/home-8.jpg)
+![Home 9](docs/home-9.jpg)
+![Home 10](docs/home-10.jpg)
+![Home 11](docs/HOME-11.jpg)
+
+
 
